@@ -1,0 +1,262 @@
+{
+  "tests": [
+    {
+      "id": "1",
+      "title": "Mock Test 1",
+      "duration": 60,
+      "totalQuestions": 10,
+      "passingScore": 70,
+      "questions": [
+        {
+          "id": 1,
+          "question": "What does AI stand for?",
+          "options": [
+            "Artificial Intelligence",
+            "Automated Information",
+            "Applied Integration",
+            "Algorithmic Inference"
+          ],
+          "correctAnswer": 0,
+          "explanation": "AI stands for Artificial Intelligence, which refers to the simulation of human intelligence in machines."
+        },
+        {
+          "id": 2,
+          "question": "Which of the following is NOT a type of machine learning?",
+          "options": [
+            "Supervised Learning",
+            "Unsupervised Learning",
+            "Reinforcement Learning",
+            "Calculated Learning"
+          ],
+          "correctAnswer": 3,
+          "explanation": "Calculated Learning is not a recognized type of machine learning. The three main types are Supervised, Unsupervised, and Reinforcement Learning."
+        },
+        {
+          "id": 3,
+          "question": "What is a neural network inspired by?",
+          "options": [
+            "Computer processors",
+            "Human brain",
+            "Mathematical equations",
+            "Data structures"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Neural networks are inspired by the structure and function of biological neural networks in the human brain."
+        },
+        {
+          "id": 4,
+          "question": "Which AI technology is primarily used for speech recognition?",
+          "options": [
+            "Computer Vision",
+            "Natural Language Processing",
+            "Robotics",
+            "Expert Systems"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Natural Language Processing (NLP) is the AI technology used for understanding and processing human speech and text."
+        },
+        {
+          "id": 5,
+          "question": "What is the Turing Test designed to measure?",
+          "options": [
+            "Computer processing speed",
+            "Machine's ability to exhibit intelligent behavior",
+            "Data storage capacity",
+            "Network bandwidth"
+          ],
+          "correctAnswer": 1,
+          "explanation": "The Turing Test, proposed by Alan Turing, measures a machine's ability to exhibit intelligent behavior equivalent to or indistinguishable from that of a human."
+        },
+        {
+          "id": 6,
+          "question": "What does 'bias' in AI typically refer to?",
+          "options": [
+            "Systematic errors in predictions",
+            "Fast processing speed",
+            "Large dataset size",
+            "Complex algorithms"
+          ],
+          "correctAnswer": 0,
+          "explanation": "Bias in AI refers to systematic errors in machine learning models that can lead to unfair or discriminatory outcomes."
+        },
+        {
+          "id": 7,
+          "question": "Which of these is an example of supervised learning?",
+          "options": [
+            "Clustering customers into groups",
+            "Email spam detection",
+            "Discovering hidden patterns in data",
+            "Autonomous exploration"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Email spam detection is supervised learning because the model is trained on labeled data (spam vs. not spam) to make predictions."
+        },
+        {
+          "id": 8,
+          "question": "What is 'deep learning'?",
+          "options": [
+            "Learning from very old data",
+            "Machine learning using neural networks with multiple layers",
+            "Studying AI ethics deeply",
+            "Learning algorithms that work underwater"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Deep learning is a subset of machine learning that uses neural networks with multiple layers to learn complex patterns in data."
+        },
+        {
+          "id": 9,
+          "question": "Which company developed ChatGPT?",
+          "options": [
+            "Google",
+            "Microsoft",
+            "OpenAI",
+            "Meta"
+          ],
+          "correctAnswer": 2,
+          "explanation": "ChatGPT was developed by OpenAI, an artificial intelligence research laboratory."
+        },
+        {
+          "id": 10,
+          "question": "What is the primary goal of AI ethics?",
+          "options": [
+            "To make AI faster",
+            "To ensure AI is developed and used responsibly",
+            "To increase AI profitability",
+            "To replace human workers"
+          ],
+          "correctAnswer": 1,
+          "explanation": "AI ethics focuses on ensuring that AI systems are developed and deployed in ways that are responsible, fair, and beneficial to society."
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Mock Test 2",
+      "duration": 60,
+      "totalQuestions": 10,
+      "passingScore": 70,
+      "questions": [
+        {
+          "id": 1,
+          "question": "What is the main difference between AI and Machine Learning?",
+          "options": [
+            "There is no difference",
+            "ML is a subset of AI focused on learning from data",
+            "AI is newer than ML",
+            "ML only works with numbers"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Machine Learning is a subset of AI that focuses on enabling systems to learn and improve from experience without being explicitly programmed."
+        },
+        {
+          "id": 2,
+          "question": "What does NLP stand for in AI?",
+          "options": [
+            "New Learning Process",
+            "Natural Language Processing",
+            "Neural Learning Program",
+            "Network Layer Protocol"
+          ],
+          "correctAnswer": 1,
+          "explanation": "NLP stands for Natural Language Processing, which enables computers to understand, interpret, and generate human language."
+        },
+        {
+          "id": 3,
+          "question": "Which algorithm is commonly used for image recognition?",
+          "options": [
+            "Linear Regression",
+            "Decision Trees",
+            "Convolutional Neural Networks (CNN)",
+            "K-Means Clustering"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Convolutional Neural Networks (CNNs) are specifically designed for processing grid-like data such as images and are highly effective for image recognition tasks."
+        },
+        {
+          "id": 4,
+          "question": "What is 'overfitting' in machine learning?",
+          "options": [
+            "Using too much data",
+            "Model performs well on training data but poorly on new data",
+            "Model is too simple",
+            "Training takes too long"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Overfitting occurs when a model learns the training data too well, including its noise and outliers, resulting in poor performance on new, unseen data."
+        },
+        {
+          "id": 5,
+          "question": "What is a 'feature' in machine learning?",
+          "options": [
+            "A bug in the code",
+            "An input variable used to make predictions",
+            "The final output",
+            "A type of algorithm"
+          ],
+          "correctAnswer": 1,
+          "explanation": "A feature is an individual measurable property or characteristic of the data that is used as input to a machine learning model."
+        },
+        {
+          "id": 6,
+          "question": "What is the purpose of a validation dataset?",
+          "options": [
+            "To train the model",
+            "To tune hyperparameters and evaluate model during training",
+            "To test the final model",
+            "To store backup data"
+          ],
+          "correctAnswer": 1,
+          "explanation": "A validation dataset is used during training to tune hyperparameters and make decisions about model architecture, without touching the test set."
+        },
+        {
+          "id": 7,
+          "question": "Which of these is an example of unsupervised learning?",
+          "options": [
+            "Predicting house prices",
+            "Email classification",
+            "Customer segmentation",
+            "Fraud detection"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Customer segmentation is unsupervised learning because it finds patterns and groups in data without predefined labels."
+        },
+        {
+          "id": 8,
+          "question": "What does GPU stand for, and why is it important for AI?",
+          "options": [
+            "General Processing Unit - for all computing",
+            "Graphics Processing Unit - excellent for parallel processing needed in AI",
+            "Global Processing Utility - for worldwide networks",
+            "Guided Programming Unit - for coding assistance"
+          ],
+          "correctAnswer": 1,
+          "explanation": "GPU (Graphics Processing Unit) is crucial for AI because it can perform many calculations simultaneously, making it ideal for training neural networks."
+        },
+        {
+          "id": 9,
+          "question": "What is 'transfer learning'?",
+          "options": [
+            "Moving data between servers",
+            "Using a pre-trained model as starting point for a new task",
+            "Learning multiple languages",
+            "Transferring knowledge between people"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Transfer learning involves taking a model trained on one task and adapting it to perform a related task, saving time and computational resources."
+        },
+        {
+          "id": 10,
+          "question": "What is the 'black box' problem in AI?",
+          "options": [
+            "AI systems stored in black boxes",
+            "Difficulty understanding how AI models make decisions",
+            "Loss of data during processing",
+            "Security vulnerabilities"
+          ],
+          "correctAnswer": 1,
+          "explanation": "The 'black box' problem refers to the difficulty in understanding and explaining how complex AI models, especially deep neural networks, arrive at their decisions."
+        }
+      ]
+    }
+  ]
+}

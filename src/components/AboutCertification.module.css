@@ -1,0 +1,257 @@
+/* Section */
+  .section {
+    padding: 5rem 0;
+    background-color: white;
+    position: relative;
+    overflow: hidden;
+    background-image: url('https://economictimes.indiatimes.com/photo/125611113.cms');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 1;
+  }
+
+/* .section::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 250px;
+  background: linear-gradient(to top, rgba(236, 72, 153, 0.08), rgba(59, 130, 246, 0.08), rgba(168, 85, 247, 0.08));
+  z-index: 1;
+} */
+
+/* Container */
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+  }
+}
+
+.gradientText {
+  background: linear-gradient(to right, #2563eb, #db2777, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+}
+
+.dividerContainer {
+  display: none;
+}
+
+
+.description {
+  font-size: 1.125rem;
+  color: #475569;
+  max-width: 48rem;
+  margin: 0 auto;
+  line-height: 1.75;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+  }
+}
+
+/* Vertical Divider */
+.verticalDivider {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .verticalDivider {
+    display: block;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, rgba(168, 85, 247, 0.3), transparent);
+    margin: 0 2rem;
+    align-self: stretch;
+  }
+}
+
+/* Certification Highlights Card */
+.highlightsCard {
+  border-radius: 1rem;
+  padding: 2rem;
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .highlightsCard {
+    padding-right: 2rem;
+  }
+}
+
+.cardTitle {
+  font-weight: 400;
+  background: linear-gradient(to right, #2563eb, #db2777, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cardIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.5rem;
+  color: #2563eb;
+}
+
+.highlightsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.highlightItem {
+  display: flex;
+  align-items: flex-start;
+}
+
+.iconWrapper {
+  border-radius: 50%;
+  padding: 0.5rem;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+
+.highlightIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.purpleIcon {
+  color: #9333ea;
+}
+
+.blueIcon {
+  color: #9333ea;
+}
+
+.greenIcon {
+  color: #9333ea;
+}
+
+.pinkIcon {
+  color: #9333ea;
+}
+
+.orangeIcon {
+  color: #9333ea;
+}
+
+.highlightTitle {
+  font-weight: 400;
+  color: #0f172a;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.highlightText {
+  color: #475569;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* What You'll Learn Card */
+.learnCard {
+  padding: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+@media (min-width: 1024px) {
+  .learnCard {
+    padding-left: 2rem;
+  }
+}
+
+.learnList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: #475569;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.learnItem {
+  display: flex;
+  align-items: flex-start;
+  line-height: 1.6;
+}
+
+.learnItem span {
+  flex: 1;
+}
+
+.checkIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.purpleCheckIcon {
+  color: #9333ea;
+}
+

@@ -1,0 +1,140 @@
+/* Section */
+.section {
+  padding: 5rem 0;
+  background-color: #1e1b4b;
+  position: relative;
+  overflow: hidden;
+  background-image: url('https://economictimes.indiatimes.com/photo/125611111.cms');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+}
+
+/* Container */
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+  }
+}
+
+.gradientText {
+  background: linear-gradient(to right, #2563eb, #db2777, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.description {
+  font-size: 1.25rem;
+  color: #cbd5e1;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Card */
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+/* Icon */
+.icon {
+  width: 4rem;
+  height: 4rem;
+  color: white;
+  margin-bottom: 1.5rem;
+  stroke-width: 1.5;
+}
+
+/* Card Title with Pill Background */
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 400;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+  display: inline-block;
+  color: white;
+}
+
+.bluePill {
+  background-color: #60a5fa;
+}
+
+.greenPill {
+  background-color: #4ade80;
+}
+
+.orangePill {
+  background-color: #fb923c;
+}
+
+.purplePill {
+  background-color: #a78bfa;
+}
+
+/* Card Description */
+.cardDescription {
+  color: white;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  max-width: 240px;
+  margin: 0 auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media (min-width: 768px) {
+  .cardDescription {
+    max-width: 260px;
+  }
+}
+

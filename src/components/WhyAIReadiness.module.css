@@ -1,0 +1,185 @@
+/* Section */
+.section {
+  padding: 40px 0 200px 0;
+  background-image: url('https://economictimes.indiatimes.com/photo/125611113.cms');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 1;
+  border-bottom:1px solid #00000033
+}
+
+/* Gradient background at bottom */
+.gradientBackground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8rem;
+  background: linear-gradient(to right, #fce7f3, #f3e8ff, #dbeafe);
+  opacity: 0.6;
+}
+
+/* Container */
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: #0f172a;
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: 3rem;
+  }
+}
+
+.gradientText {
+  background: linear-gradient(to right, #2563eb, #db2777, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.description {
+  font-size: 1.125rem;
+  color: #475569;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  gap: 4rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Left Column */
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.sectionItem {
+  /* Empty for now, can add styles if needed */
+}
+
+.label {
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+.sectionText {
+  color: #475569;
+  line-height: 1.75;
+}
+
+/* Right Column */
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+gap: 10px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.statBarImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.statLabel {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* Arrow */
+.arrowContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.arrowImage {
+  width: 100%;
+  max-width: 200px;
+  max-height: 80px;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* Gap Banner */
+.gapBanner {
+  margin-top: 0rem;
+  text-align: center;
+}
+
+.gapTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #dc2626;
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.gapText {
+  color: #0f172a;
+  font-size: 1rem;
+  line-height: 1.75;
+  font-weight: 500;
+}
+

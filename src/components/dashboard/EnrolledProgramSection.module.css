@@ -1,0 +1,420 @@
+.section {
+  background-color: white;
+  padding: 1.5rem 1rem;
+  margin-bottom: 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+@media (min-width: 640px) {
+  .section {
+    border-radius: 0.5rem;
+    border: none;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    background-color: white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  padding-left: 0.5rem;
+}
+
+.headerLeft::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 0.5rem;
+  padding: 0.375rem;
+}
+
+.headerIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: white;
+}
+
+.headerTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+.statusBadge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: 1px solid #e5e7eb;
+}
+
+.bg-purple-50 {
+  background-color: #f9fafb;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.bg-blue-50 {
+  background-color: #f9fafb;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.bg-green-50 {
+  background-color: #f9fafb;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.bg-orange-50 {
+  background-color: #f9fafb;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.bg-red-50 {
+  background-color: #f9fafb;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .content {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.programInfo {
+  grid-column: 1;
+}
+
+@media (min-width: 1024px) {
+  .programInfo {
+    grid-column: 1;
+  }
+}
+
+.programCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  background-color: #f9fafb;
+}
+
+@media (min-width: 640px) {
+  .programCard {
+    background-color: #fafafa;
+  }
+}
+
+.programCard.bg-purple-50 {
+  background-color: #f9fafb;
+}
+
+@media (min-width: 640px) {
+  .programCard.bg-purple-50 {
+    background-color: #fafafa;
+  }
+}
+
+.programCard.bg-blue-50 {
+  background-color: #f9fafb;
+}
+
+@media (min-width: 640px) {
+  .programCard.bg-blue-50 {
+    background-color: #fafafa;
+  }
+}
+
+.programCard.bg-green-50 {
+  background-color: #f9fafb;
+}
+
+@media (min-width: 640px) {
+  .programCard.bg-green-50 {
+    background-color: #fafafa;
+  }
+}
+
+.programCard.bg-orange-50 {
+  background-color: #f9fafb;
+}
+
+@media (min-width: 640px) {
+  .programCard.bg-orange-50 {
+    background-color: #fafafa;
+  }
+}
+
+.programCard.bg-red-50 {
+  background-color: #f9fafb;
+}
+
+@media (min-width: 640px) {
+  .programCard.bg-red-50 {
+    background-color: #fafafa;
+  }
+}
+
+.programIcon {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+}
+
+.programIcon.text-purple-600 {
+  color: #9333ea;
+}
+
+.programIcon.text-blue-600 {
+  color: #2563eb;
+}
+
+.programIcon.text-green-600 {
+  color: #16a34a;
+}
+
+.programIcon.text-orange-600 {
+  color: #ea580c;
+}
+
+.programIcon.text-red-600 {
+  color: #dc2626;
+}
+
+.programDetails {
+  flex: 1;
+}
+
+.programName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.programDescription {
+  color: #334155;
+  margin-bottom: 1rem;
+}
+
+.programMeta {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .programMeta {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metaIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #64748b;
+}
+
+.metaText {
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.targetAudience {
+  margin-top: 1rem;
+}
+
+.targetTitle {
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.targetIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #eab308;
+}
+
+.targetText {
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.progressCard {
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: none;
+}
+
+@media (min-width: 640px) {
+  .progressCard {
+    background-color: #fafafa;
+  }
+}
+
+.progressTitle {
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progressIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #9333ea;
+}
+
+.progressContent {
+  margin-bottom: 0.75rem;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progressValue {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #9333ea;
+}
+
+.progressLabel {
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.progressBar {
+  width: 100%;
+  background-color: white;
+  border-radius: 9999px;
+  height: 0.75rem;
+  overflow: hidden;
+}
+
+.progressFill {
+  background-color: #2563eb;
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.progressText {
+  font-size: 0.75rem;
+  color: #475569;
+  margin-top: 0.75rem;
+}
+
+.competenciesCard {
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: none;
+}
+
+@media (min-width: 640px) {
+  .competenciesCard {
+    background-color: #fafafa;
+  }
+}
+
+.competenciesTitle {
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.competenciesIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #ca8a04;
+}
+
+.competenciesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.competencyItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+.competencyCheck {
+  width: 1rem;
+  height: 1rem;
+  color: #16a34a;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+

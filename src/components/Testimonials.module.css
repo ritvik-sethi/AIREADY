@@ -1,0 +1,315 @@
+/* Section */
+.section {
+  padding: 5rem 0;
+  background-color: white;
+}
+
+/* Container */
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: #0f172a;
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: 3rem;
+  }
+}
+
+.gradientText {
+  background: linear-gradient(to right, #2563eb, #db2777, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: #475569;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 80rem;
+  margin: 0 auto 3rem auto;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Testimonial Card */
+.testimonialCard {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.testimonialCard:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.testimonialText {
+  color: #1e293b;
+  line-height: 1.75;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.testimonialAuthor {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  background: linear-gradient(to bottom right, #f3e8ff, #fce7f3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.authorInfo {
+  flex: 1;
+}
+
+.authorNameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.authorName {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.linkedinIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #2563eb;
+}
+
+.authorRole {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Navigation */
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.navButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.navButton:hover {
+  background-color: #fef2f2;
+}
+
+.navIconLeft {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #dc2626;
+  transform: rotate(90deg);
+}
+
+.navIconRight {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #dc2626;
+  transform: rotate(-90deg);
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+}
+
+.dotActive {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: #0f172a;
+}
+
+/* CTA Section */
+.ctaSection {
+  padding: 0 0 5rem 0;
+  background-image: url('https://economictimes.indiatimes.com/photo/125611113.cms');
+  background-size: cover;
+  background-position: center 80%;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.ctaContainer {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 640px) {
+  .ctaContainer {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ctaContainer {
+    padding: 0 2rem;
+  }
+}
+
+.ctaTitle {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  color: #0f172a;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .ctaTitle {
+    font-size: 3rem;
+  }
+}
+
+.ctaTitleBlack {
+  color: #0f172a;
+}
+
+.socialProof {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.profileAvatars {
+  display: flex;
+  align-items: center;
+}
+
+.profileAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-left: -0.5rem;
+}
+
+.profileAvatar:first-child {
+  margin-left: 0;
+}
+
+.registeredText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ctaDescription {
+  font-size: 1rem;
+  color: #475569;
+  margin-bottom: 2rem;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2563eb;
+  background-color: transparent;
+  padding: 0.875rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.ctaButtonIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+

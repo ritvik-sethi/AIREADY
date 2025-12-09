@@ -1,0 +1,119 @@
+{
+  "tracks": [
+    {
+      "id": "ai-leader",
+      "name": "AI Certified Leader",
+      "description": "Leadership certification for executives and managers implementing AI strategy",
+      "color": "purple",
+      "icon": "crown",
+      "validity": "3 years",
+      "price": 25000,
+      "addonAttemptsPrice": 12500,
+      "reExamPrice": 25000,
+      "passingScore": 75,
+      "modules": ["1", "2", "3", "4", "5"],
+      "competencies": [
+        "AI Strategy & Vision",
+        "Change Management",
+        "Ethical AI Leadership",
+        "ROI & Business Impact",
+        "Team Building & AI Culture"
+      ],
+      "targetAudience": "C-Suite, Senior Management, Department Heads",
+      "prerequisites": "5+ years management experience",
+      "active": true
+    },
+    {
+      "id": "ai-hr",
+      "name": "AI Ready HR Professional",
+      "description": "HR certification focusing on AI in talent management and workforce planning",
+      "color": "blue",
+      "icon": "users",
+      "validity": "3 years",
+      "price": 18000,
+      "addonAttemptsPrice": 9000,
+      "reExamPrice": 18000,
+      "passingScore": 70,
+      "modules": ["1", "2", "3"],
+      "competencies": [
+        "AI in Recruitment",
+        "Workforce Analytics",
+        "Employee Experience with AI",
+        "Learning & Development",
+        "HR Compliance & Ethics"
+      ],
+      "targetAudience": "HR Managers, Talent Acquisition, L&D Professionals",
+      "prerequisites": "HR background or experience",
+      "active": true
+    },
+    {
+      "id": "ai-business",
+      "name": "AI Ready Business Manager",
+      "description": "Business management certification for operational excellence with AI",
+      "color": "green",
+      "icon": "briefcase",
+      "validity": "3 years",
+      "price": 20000,
+      "addonAttemptsPrice": 10000,
+      "reExamPrice": 20000,
+      "passingScore": 72,
+      "modules": ["1", "2", "3", "4"],
+      "competencies": [
+        "Business Process Automation",
+        "Data-Driven Decision Making",
+        "AI Project Management",
+        "Customer Experience Enhancement",
+        "Performance Metrics & KPIs"
+      ],
+      "targetAudience": "Business Managers, Operations Heads, Project Managers",
+      "prerequisites": "Business management experience",
+      "active": true
+    },
+    {
+      "id": "ai-technical",
+      "name": "AI Ready Technical Professional",
+      "description": "Technical certification for developers and IT professionals",
+      "color": "orange",
+      "icon": "code",
+      "validity": "3 years",
+      "price": 22000,
+      "addonAttemptsPrice": 11000,
+      "reExamPrice": 22000,
+      "passingScore": 80,
+      "modules": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+      "competencies": [
+        "Machine Learning Fundamentals",
+        "AI Model Development",
+        "Data Engineering",
+        "MLOps & Deployment",
+        "AI Security & Privacy"
+      ],
+      "targetAudience": "Developers, Data Scientists, IT Professionals",
+      "prerequisites": "Programming knowledge required",
+      "active": true
+    },
+    {
+      "id": "ai-educator",
+      "name": "AI Ready Educator",
+      "description": "Certification for teachers and educational professionals",
+      "color": "red",
+      "icon": "book",
+      "validity": "3 years",
+      "price": 15000,
+      "addonAttemptsPrice": 7500,
+      "reExamPrice": 15000,
+      "passingScore": 70,
+      "modules": ["1", "2", "3"],
+      "competencies": [
+        "AI in Education",
+        "Curriculum Development",
+        "Student Assessment with AI",
+        "Digital Literacy",
+        "Ethical AI Teaching"
+      ],
+      "targetAudience": "Teachers, Professors, Educational Administrators",
+      "prerequisites": "Teaching experience",
+      "active": true
+    }
+  ]
+}

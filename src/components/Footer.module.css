@@ -1,0 +1,168 @@
+/* Footer */
+.footer {
+  background-color: #000000;
+  padding: 3rem 0;
+  position: relative;
+}
+
+/* Top Border - Multi-colored gradient line */
+.topBorder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    #9333ea,
+    #2563eb,
+    #10b981,
+    #fbbf24,
+    #f97316
+  );
+}
+
+/* Container */
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Logo Section */
+.logoSection {
+  margin-bottom: 2rem;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.logoText1 {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: white;
+  letter-spacing: 0.05em;
+}
+
+.logoText2 {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: white;
+  letter-spacing: 0.05em;
+}
+
+.logoDivider {
+  width: 1px;
+  height: 1.5rem;
+  background-color: white;
+  margin: 0 0.5rem;
+}
+
+.logoAI {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  background: linear-gradient(to right, #c084fc, #9333ea, #db2777);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (min-width: 768px) {
+  .logoText1,
+  .logoText2,
+  .logoAI {
+    font-size: 2rem;
+  }
+  
+  .logoDivider {
+    height: 2rem;
+  }
+}
+
+/* Description */
+.description {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.875rem;
+  color: #d1d5db;
+  line-height: 1.6;
+  max-width: 48rem;
+  margin: 0 auto 2rem auto;
+}
+
+@media (min-width: 768px) {
+  .description {
+    font-size: 1rem;
+  }
+}
+
+/* Contact Buttons */
+.contactButtons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .contactButtons {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.contactButton {
+  background-color: #1f2937;
+  color: white;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .contactButton {
+    width: auto;
+    min-width: 200px;
+  }
+}
+
+.contactButton:hover {
+  background-color: #374151;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .contactButton {
+    font-size: 1rem;
+    padding: 1rem 2rem;
+  }
+}
+

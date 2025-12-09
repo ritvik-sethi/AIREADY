@@ -1,0 +1,70 @@
+.dashboard {
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Remove bottom border from last section on mobile */
+@media (max-width: 639px) {
+  .main > *:last-child {
+    border-bottom: none !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .main {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    padding: 3rem 2rem;
+  }
+}
+
+.examSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-bottom: 0;
+}
+
+@media (min-width: 640px) {
+  .examSection {
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .examSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.testsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-bottom: 0;
+}
+
+@media (min-width: 640px) {
+  .testsSection {
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .testsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+

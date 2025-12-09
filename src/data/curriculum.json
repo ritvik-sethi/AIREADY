@@ -1,0 +1,24 @@
+{
+  "modules": [
+    {
+      "id": "1",
+      "title": "Foundations of Intelligence & AI Evolution",
+      "duration": "4 hours",
+      "description": "Build a solid conceptual base in what intelligence is — and how AI simulates it.",
+      "professionalConcepts": "Understanding natural vs artificial intelligence, AI history from symbolic systems to generative AI, core functional differences between AI/ML/DL, the four pillars of AI systems, and real-world applications.",
+      "advancedIntegration": "Cognitive science foundations, AI as cognitive amplifier, representation concepts in LLMs, neuro-symbolic AI and hybrid cognition models.",
+      "topics": [
+        "What is Intelligence? Natural vs Artificial",
+        "AI History: Symbolic → Machine Learning → Deep Learning → Generative AI",
+        "AI vs ML vs DL – Core Functional Differences",
+        "The 4 Pillars of AI: Data, Algorithms, Compute, Feedback",
+        "Real-World AI Examples (ChatGPT, Gemini, Grok, Copilot, etc.)",
+        "Cognitive Science & Symbolic AI foundations",
+        "AI as a cognitive amplifier — reasoning vs association",
+        "Concept of 'representation' in AI and how LLMs mimic understanding",
+        "Neuro-symbolic AI and hybrid cognition"
+      ],
+      "pdfUrl": "/curriculum/module-1.pdf"
+    }
+  ]
+}

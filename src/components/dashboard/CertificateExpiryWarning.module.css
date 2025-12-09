@@ -1,0 +1,132 @@
+.warning {
+  padding: 1.5rem 1rem;
+  margin-bottom: 0;
+  border-bottom: 1px solid;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+@media (min-width: 640px) {
+  .warning {
+    border-radius: 0.5rem;
+    border: none;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
+.expired {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+.expiring {
+  background-color: #fffbeb;
+  border-color: #fde68a;
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.leftSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.iconExpired {
+  color: #dc2626;
+}
+
+.iconExpiring {
+  color: #ca8a04;
+}
+
+.textSection {
+  flex: 1;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.titleExpired {
+  color: #991b1b;
+}
+
+.titleExpiring {
+  color: #854d0e;
+}
+
+.message {
+  margin-bottom: 0.75rem;
+}
+
+.messageExpired {
+  color: #b91c1c;
+}
+
+.messageExpiring {
+  color: #a16207;
+}
+
+.description {
+  font-size: 0.875rem;
+}
+
+.descriptionExpired {
+  color: #dc2626;
+}
+
+.descriptionExpiring {
+  color: #ca8a04;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: white;
+}
+
+.buttonExpired {
+  background-color: #dc2626;
+}
+
+.buttonExpired:hover {
+  background-color: #b91c1c;
+}
+
+.buttonExpiring {
+  background-color: #ca8a04;
+}
+
+.buttonExpiring:hover {
+  background-color: #a16207;
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+}
+

@@ -1,0 +1,128 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "password": "password123",
+      "role": "user",
+      "profile": {
+        "phone": "+91 98765 43210",
+        "organization": "Tech Solutions Pvt Ltd",
+        "designation": "Software Developer",
+        "location": "Mumbai, India",
+        "joinedDate": "2025-01-15",
+        "bio": "Passionate about AI and Machine Learning. Looking to enhance my skills in AI technologies.",
+        "photo": "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+        "idDocument": null,
+        "verified": false,
+        "verifiedBy": null,
+        "verifiedDate": null
+      },
+      "enrollment": {
+        "status": "active",
+        "enrolledDate": "2025-01-15",
+        "expiryDate": "2026-01-15"
+      },
+      "examStatus": "not_attempted",
+      "remainingAttempts": 2,
+      "courseProgress": {
+        "modules": [
+          { "moduleId": "1", "progress": 100, "status": "completed" },
+          { "moduleId": "2", "progress": 75, "status": "in_progress" },
+          { "moduleId": "3", "progress": 40, "status": "in_progress" },
+          { "moduleId": "4", "progress": 0, "status": "not_started" },
+          { "moduleId": "5", "progress": 0, "status": "not_started" }
+        ],
+        "overallProgress": 43
+      },
+      "mockTests": [
+        { "testId": "1", "score": null, "completed": false },
+        { "testId": "2", "score": null, "completed": false }
+      ],
+      "credlyBadgeUrl": null,
+      "certificateNumber": null,
+      "certificationTrack": "ai-technical"
+    },
+    {
+      "id": "2",
+      "name": "Jane Smith",
+      "email": "jane@example.com",
+      "password": "password123",
+      "role": "user",
+      "profile": {
+        "phone": "+91 87654 32109",
+        "organization": "Innovation Labs",
+        "designation": "Data Scientist",
+        "location": "Bangalore, India",
+        "joinedDate": "2024-11-20",
+        "bio": "Data scientist with 5 years of experience. Completed AI Ready certification to validate my expertise.",
+        "photo": "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
+        "idDocument": "https://example.com/documents/jane-id.pdf",
+        "verified": true,
+        "verifiedBy": "admin@etaiready.com",
+        "verifiedDate": "2024-11-21"
+      },
+      "enrollment": {
+        "status": "active",
+        "enrolledDate": "2024-11-20",
+        "expiryDate": "2027-11-20"
+      },
+      "examStatus": "passed",
+      "remainingAttempts": 2,
+      "courseProgress": {
+        "modules": [
+          { "moduleId": "1", "progress": 100, "status": "completed" },
+          { "moduleId": "2", "progress": 100, "status": "completed" },
+          { "moduleId": "3", "progress": 100, "status": "completed" },
+          { "moduleId": "4", "progress": 100, "status": "completed" },
+          { "moduleId": "5", "progress": 100, "status": "completed" }
+        ],
+        "overallProgress": 100
+      },
+      "mockTests": [
+        { "testId": "1", "score": 85, "completed": true },
+        { "testId": "2", "score": 90, "completed": true }
+      ],
+      "credlyBadgeUrl": "https://www.credly.com/badges/ai-ready-cert",
+      "certificateNumber": "AIRC-2025-001234",
+      "certificationTrack": "ai-leader"
+    },
+    {
+      "id": "3",
+      "name": "Admin User",
+      "email": "admin@etaiready.com",
+      "password": "admin123",
+      "role": "admin",
+      "adminRole": "super_admin",
+      "profile": {
+        "phone": "+91 99999 00000",
+        "organization": "Economic Times",
+        "designation": "System Administrator",
+        "location": "Delhi, India",
+        "joinedDate": "2024-01-01",
+        "bio": "Platform administrator managing AI Ready certification program.",
+        "photo": "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin",
+        "idDocument": null,
+        "verified": true,
+        "verifiedBy": "system",
+        "verifiedDate": "2024-01-01"
+      },
+      "enrollment": {
+        "status": "admin",
+        "enrolledDate": "2024-01-01",
+        "expiryDate": null
+      },
+      "examStatus": "not_applicable",
+      "remainingAttempts": 0,
+      "courseProgress": {
+        "modules": [],
+        "overallProgress": 0
+      },
+      "mockTests": [],
+      "credlyBadgeUrl": null,
+      "certificateNumber": null,
+      "certificationTrack": null
+    }
+  ]
+}

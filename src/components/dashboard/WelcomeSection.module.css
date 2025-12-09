@@ -1,0 +1,32 @@
+.welcomeSection {
+  background-color: white;
+  padding: 2rem 1rem;
+  margin-bottom: 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+@media (min-width: 640px) {
+  .welcomeSection {
+    border-radius: 0.5rem;
+    border: none;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    background-color: white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
+

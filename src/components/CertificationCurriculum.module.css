@@ -1,0 +1,263 @@
+/* Section */
+.section {
+  padding: 5rem 0;
+  background-color: #F5F8FA;
+  position: relative;
+}
+
+/* Container */
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: 3rem;
+  }
+}
+
+.gradientText {
+  background: linear-gradient(to right, #2563eb, #db2777, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.titleBlack {
+  color: #0f172a;
+}
+
+.description {
+  font-size: 1rem;
+  color: #0f172a;
+  max-width: 48rem;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Modules List */
+.modulesList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+}
+
+/* Module Card */
+.moduleCard {
+  background-color: white;
+  transition: background-color 0.3s ease;
+
+}
+
+.moduleCard:last-child {
+  border-bottom: none;
+}
+
+.moduleCard:hover {
+  background-color: #f9fafb;
+}
+
+.moduleCardOpen {
+  background-color: #f9fafb;
+}
+
+.moduleButton {
+  width: 100%;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  text-align: left;
+  background: white;
+  border: none;
+  cursor: pointer;
+  color: #0f172a;
+}
+
+/* Badge Wrapper */
+.badgeWrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.badgeNumber {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(to bottom right, #f97316, #ec4899, #9333ea);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Module Content */
+.moduleContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.moduleTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.moduleDesc {
+  color: #0f172a;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Expand Icon */
+.expandIconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chevronIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+  color: #dc2626;
+}
+
+.chevronIconOpen {
+  transform: rotate(180deg);
+  color: #dc2626;
+}
+
+/* Expanded Content */
+.expandedContent {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.topicsContainer {
+  background: linear-gradient(to bottom right, rgba(243, 232, 255, 0.5), rgba(252, 231, 243, 0.5));
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(196, 181, 253, 0.3);
+}
+
+.topicsTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topicsDot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: linear-gradient(to right, #9333ea, #db2777);
+}
+
+.topicsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+
+.topicSectionTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #7c3aed;
+  margin-bottom: 0.5rem;
+}
+
+.topicSectionTitleAdvanced {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #db2777;
+  margin-bottom: 0.5rem;
+}
+
+.topicSectionText {
+  font-size: 0.875rem;
+  color: #475569;
+  line-height: 1.75;
+}
+
+/* CTA Container */
+.ctaContainer {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: #60a5fa;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border: 1px solid #60a5fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ctaButton:hover {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.ctaIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+

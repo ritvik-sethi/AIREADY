@@ -1,0 +1,204 @@
+/* Section */
+.section {
+  padding: 40px 0 20px 0;
+  background-color: white;
+  border-bottom:1px solid #00000033
+}
+
+/* Container */
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+  }
+
+.gradientText {
+  background: linear-gradient(to right, #2563eb, #db2777, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.description {
+  font-size: 1.125rem;
+  color: #475569;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  gap: 3rem;
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Benefit Card */
+.benefitCard {
+  text-align: center;
+}
+
+.iconWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.icon {
+  width: 4rem;
+  height: 4rem;
+}
+
+.benefitTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+.benefitText {
+  color: #475569;
+  font-size: 0.875rem;
+}
+
+/* Trusted By Section */
+.trustedSection {
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.trustedTitle {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 2rem;
+}
+
+/* Carousel */
+.carouselWrapper {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  padding: 1rem 0;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+}
+
+.carousel {
+  display: flex;
+  gap: 2rem;
+  animation: scroll 60s linear infinite;
+  width: fit-content;
+  will-change: transform;
+}
+
+.carousel:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50% - 1rem));
+  }
+}
+
+.carouselItem {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 80px;
+  padding: 0 0.5rem;
+}
+
+.carouselImage {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.carouselItem:hover .carouselImage {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+  .carouselItem {
+    width: 180px;
+    height: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .carouselItem {
+    width: 200px;
+    height: 120px;
+  }
+}
+
+/* SVG Gradients */
+.svgGradients {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+

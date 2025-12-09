@@ -1,0 +1,134 @@
+/* Section */
+.section {
+  padding: 40px 0 20px 0;
+  background-color: white;
+  border-bottom:1px solid #00000033
+}
+
+/* Container */
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+.gradientText {
+  background: linear-gradient(to right, #2563eb, #db2777, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.description {
+  font-size: 1.25rem;
+  color: #475569;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Certificate Wrapper */
+.certificateWrapper {
+  position: relative;
+  order: 1;
+}
+
+@media (min-width: 1024px) {
+  .certificateWrapper {
+    order: 0;
+  }
+}
+
+.certificateContainer {
+  background: transparent;
+  border-radius: 0.75rem;
+  padding: 0;
+  position: relative;
+}
+
+.certificateImage {
+  width: 100%;
+  height: auto;
+}
+
+.certificateImage:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+/* Benefits */
+.benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  order: 0;
+}
+
+@media (min-width: 1024px) {
+  .benefits {
+    order: 1;
+  }
+}
+
+.benefitItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.checkIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #9333ea;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.benefitTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+.benefitText {
+  color: #475569;
+  line-height: 1.75;
+  font-size: 0.95rem;
+}
+
