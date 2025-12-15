@@ -136,6 +136,23 @@ class JSSOService {
   // Load JSSO SDK and get user details - replicates getUserDetailOpt()
   async getUserDetailOpt(): Promise<void> {
     console.log('[JSSO Service] 🔍 getUserDetailOpt called');
+    
+    // Check if we just logged out - if so, skip login check
+    const logoutFlag = sessionStorage.getItem('jsso_logout_flag');
+    if (logoutFlag) {
+      const logoutTime = parseInt(logoutFlag, 10);
+      const timeSinceLogout = Date.now() - logoutTime;
+      // If logout was less than 2 seconds ago, skip login check
+      if (timeSinceLogout < 2000) {
+        console.log('[JSSO Service] ⏸️ Skipping login check - logout was recent');
+        sessionStorage.removeItem('jsso_logout_flag');
+        this.handleNotLoggedIn();
+        return;
+      }
+      // Clear flag if it's been more than 2 seconds
+      sessionStorage.removeItem('jsso_logout_flag');
+    }
+    
     const state = this.store.getState();
     const config = state.config;
     const jssoAuth = state.jssoAuth;
@@ -1174,6 +1191,9 @@ class JSSOService {
   // Perform logout cleanup - clears storage and cookies
   private performLogoutCleanup(cb?: () => void): void {
     try {
+      // Set logout flag to prevent re-authentication immediately after logout
+      sessionStorage.setItem('jsso_logout_flag', Date.now().toString());
+      
       // Check if logout is from plans page
       const planparams = (window as any).planparams;
       if (planparams?.page === 'plans') {

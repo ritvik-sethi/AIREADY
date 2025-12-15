@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { CheckCircle, Award, Building2, GraduationCap, Users, ChevronRight, Shield, FileCheck, Zap, TrendingUp, Target, Globe, Briefcase, Star, Quote, Mail, Phone, MapPin, Linkedin, Twitter, Facebook, Instagram, ChevronDown, HelpCircle } from 'lucide-react';
 import RegistrationForm from './components/RegistrationForm';
 import Login from './components/Login';
+import PlanSelectionModal from './components/PlanSelectionModal';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/AdminDashboard';
 import InstitutionDashboard from './components/InstitutionDashboard';
@@ -14,8 +15,8 @@ import { Home2Page } from './Home2';
 import Header from './components/Header';
 import { jssoService } from './services/jssoService';
 import { store } from './store';
-import { useAppSelector } from './store/hooks';
-import { clearUserInfo } from './store/slices/jssoAuthSlice';
+import { useAppSelector, useAppDispatch } from './store/hooks';
+import { clearUserInfo, syncUser } from './store/slices/jssoAuthSlice';
 
 // Protected Route Component
 function ProtectedRoute({ children, user, requiredRole }: { children: React.ReactNode, user: User | null, requiredRole?: string }) {
@@ -37,6 +38,9 @@ function LandingPage() {
   const [openModule, setOpenModule] = useState<number>(0); // Module 1 open by default
   const [faqCategory, setFaqCategory] = useState<number>(0); // FAQ category state
   const [showCurriculumModal, setShowCurriculumModal] = useState<boolean>(false);
+  const [showRegistrationModal, setShowRegistrationModal] = useState<boolean>(false);
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [showPlanSelectionModal, setShowPlanSelectionModal] = useState<boolean>(false);
   const [activePathTab, setActivePathTab] = useState<number>(0); // Path to certification tab state
   const [curriculumFormData, setCurriculumFormData] = useState({
     name: '',
@@ -219,7 +223,7 @@ function LandingPage() {
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row gap-3 pt-1">
                 <button
-                  onClick={() => navigate('/register')}
+                  onClick={() => setShowRegistrationModal(true)}
                   className="group text-white px-6 py-3 rounded-xl hover:opacity-90 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 text-base font-semibold"
                   style={{backgroundColor: '#ee0007'}}
                 >
@@ -2514,7 +2518,7 @@ function LandingPage() {
             Join thousands of professionals and organizations already certified in AI readiness
           </p>
           <button
-            onClick={() => navigate('/register')}
+            onClick={() => setShowRegistrationModal(true)}
             className="bg-white text-red-600 px-8 py-4 rounded-xl hover:bg-slate-50 transition-all transform hover:scale-105 shadow-lg text-lg font-semibold inline-flex items-center space-x-2"
           >
             <span>Start Registration</span>
@@ -2803,6 +2807,38 @@ function LandingPage() {
         </div>
       )}
 
+      {/* Registration Modal */}
+      {showRegistrationModal && (
+        <RegistrationForm 
+          onClose={() => setShowRegistrationModal(false)}
+          onOpenLogin={() => {
+            setShowRegistrationModal(false);
+            setShowLoginModal(true);
+          }}
+        />
+      )}
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <Login 
+          onLogin={() => {
+            setShowLoginModal(false);
+          }} 
+          onClose={() => setShowLoginModal(false)}
+          onOpenPlanSelection={() => {
+            setShowLoginModal(false);
+            setShowPlanSelectionModal(true);
+          }}
+        />
+      )}
+
+      {/* Plan Selection Modal */}
+      {showPlanSelectionModal && (
+        <PlanSelectionModal 
+          onClose={() => setShowPlanSelectionModal(false)}
+        />
+      )}
+
     </div>
   );
 }
@@ -2817,12 +2853,8 @@ function LoginPage() {
     setCurrentUser(user);
     localStorage.setItem('currentUser', JSON.stringify(user));
 
-    // Always redirect to dashboard after successful login
-    if (user.role === 'admin') {
-      navigate('/admin', { replace: true });
-    } else {
-      navigate('/dashboard', { replace: true });
-    }
+    // Navigation will be handled by AuthRedirectHandler after sync-user API completes
+    // Don't navigate here - wait for sync to complete and role to be determined
   };
 
   return <Login onLogin={handleLogin} onClose={() => navigate('/')} />;
@@ -2852,25 +2884,25 @@ function DashboardPage() {
     // Set flag to prevent redirect to login during logout
     isLoggingOut.current = true;
     
+    // Clear user from context and localStorage FIRST (synchronously)
+    setCurrentUser(null);
+    localStorage.removeItem('currentUser');
+    
     // Clear Redux state
     store.dispatch(clearUserInfo());
     
-    // Call JSSO logout
+    // Call JSSO logout and wait for it to complete
     try {
       await jssoService.logout();
     } catch (error) {
       console.error('Error during JSSO logout:', error);
     }
     
-    // Navigate to home page first
+    // Reset logout flag
+    isLoggingOut.current = false;
+    
+    // Navigate to home page AFTER cleanup is complete
     navigate('/', { replace: true });
-    // Clear user from context and localStorage after navigation
-    // Use setTimeout to ensure navigation completes before state update
-    setTimeout(() => {
-      setCurrentUser(null);
-      localStorage.removeItem('currentUser');
-      isLoggingOut.current = false;
-    }, 0);
   };
 
   // Create a user object from JSSO userInfo if logged in but no currentUser
@@ -2980,46 +3012,225 @@ function DashboardPage() {
 function AdminPage() {
   const navigate = useNavigate();
   const { currentUser, setCurrentUser } = React.useContext(AuthContext);
+  const isLoggedIn = useAppSelector((state) => state.jssoAuth.isLogin);
+  const jssoUserInfo = useAppSelector((state) => state.jssoAuth.userInfo);
+  const userRole = useAppSelector((state) => state.jssoAuth.userRole);
+  const isSyncingUser = useAppSelector((state) => state.jssoAuth.isSyncingUser);
   const isLoggingOut = useRef(false);
 
   const handleLogout = async () => {
     // Set flag to prevent redirect to login during logout
     isLoggingOut.current = true;
     
+    // Clear user from context and localStorage FIRST (synchronously)
+    setCurrentUser(null);
+    localStorage.removeItem('currentUser');
+    
     // Clear Redux state
     store.dispatch(clearUserInfo());
     
-    // Call JSSO logout
+    // Call JSSO logout and wait for it to complete
     try {
       await jssoService.logout();
     } catch (error) {
       console.error('Error during JSSO logout:', error);
     }
     
-    // Navigate to home page first
+    // Reset logout flag
+    isLoggingOut.current = false;
+    
+    // Navigate to home page AFTER cleanup is complete
     navigate('/', { replace: true });
-    // Clear user from context and localStorage after navigation
-    // Use setTimeout to ensure navigation completes before state update
-    setTimeout(() => {
-      setCurrentUser(null);
-      localStorage.removeItem('currentUser');
-      isLoggingOut.current = false;
-    }, 0);
   };
 
+  // Create a user object from JSSO userInfo if logged in but no currentUser
+  useEffect(() => {
+    if (isLoggedIn && !currentUser && jssoUserInfo?.ssoid && userRole) {
+      // Get verified mobile if available
+      const mobileList = jssoUserInfo.mobileList || {};
+      const verifiedMobile = Object.entries(mobileList).find(
+        ([, value]) => value === 'Verified'
+      )?.[0] || Object.keys(mobileList)[0] || '';
+
+      // Create a user object from JSSO userInfo with role from sync-user API
+      const jssoUser: User = {
+        id: jssoUserInfo.ssoid || '',
+        email: jssoUserInfo.emailId || jssoUserInfo.primaryEmail || '',
+        name: jssoUserInfo.firstName || jssoUserInfo.full_name || 'User',
+        role: userRole as 'user' | 'admin' | 'institution', // Use role from sync-user API
+        certificationTrack: null,
+        profile: {
+          phone: verifiedMobile,
+          organization: '',
+          designation: '',
+          location: '',
+          joinedDate: new Date().toISOString(),
+          bio: '',
+          photo: null,
+          idDocument: null,
+          verified: false,
+          verifiedBy: null,
+          verifiedDate: null
+        },
+        courseProgress: {
+          modules: [],
+          overallProgress: 0
+        },
+        enrollment: {
+          status: 'active',
+          enrolledDate: new Date().toISOString(),
+          expiryDate: null
+        },
+        examStatus: 'not_attempted',
+        remainingAttempts: 3,
+        addonAttempts: 0,
+        mockTests: [],
+        credlyBadgeUrl: null,
+        certificateNumber: null
+      };
+      setCurrentUser(jssoUser);
+      localStorage.setItem('currentUser', JSON.stringify(jssoUser));
+    }
+  }, [isLoggedIn, currentUser, jssoUserInfo, userRole, setCurrentUser]);
+
+  // Show loader while syncing
+  if (isLoggedIn && isSyncingUser) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        zIndex: 9999
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #3498db',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px'
+          }}></div>
+          <p>Syncing user data...</p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
+
   // Don't redirect if we're in the process of logging out
-  // If no user, redirect to home page (login route is disabled)
-  if (!currentUser && !isLoggingOut.current) {
+  // Check both currentUser and JSSO login state
+  if (!isLoggedIn && !currentUser && !isLoggingOut.current) {
     return <Navigate to="/" replace />;
   }
 
-  // If no user and not logging out, return null (component will unmount during navigation)
-  if (!currentUser) {
-    return <Navigate to="/login" replace />;
+  // If not logged in and no user, show loading or redirect
+  if (!isLoggedIn && !currentUser) {
+    return null; // Component will unmount during navigation
   }
 
-  if (currentUser.role !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
+  // Check role from Redux state if currentUser doesn't have it yet
+  const effectiveRole = currentUser?.role || userRole;
+  
+  // If role is not admin, redirect to appropriate dashboard
+  if (effectiveRole && effectiveRole !== 'admin') {
+    if (effectiveRole === 'institution') {
+      return <Navigate to="/institution" replace />;
+    } else {
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+
+  // Wait for sync to complete and role to be available
+  if (isLoggedIn && !effectiveRole && !isSyncingUser) {
+    // Still syncing or role not available yet, show loading
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        zIndex: 9999
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #3498db',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px'
+          }}></div>
+          <p>Loading...</p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
+
+  // If no currentUser but we have JSSO info, wait for useEffect to set it
+  if (!currentUser && isLoggedIn && jssoUserInfo?.ssoid) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        zIndex: 9999
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #3498db',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px'
+          }}></div>
+          <p>Loading user data...</p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
+
+  // Final check: if still no currentUser, redirect
+  if (!currentUser) {
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -3039,25 +3250,25 @@ function InstitutionPage() {
     // Set flag to prevent redirect to login during logout
     isLoggingOut.current = true;
     
+    // Clear user from context and localStorage FIRST (synchronously)
+    setCurrentUser(null);
+    localStorage.removeItem('currentUser');
+    
     // Clear Redux state
     store.dispatch(clearUserInfo());
     
-    // Call JSSO logout
+    // Call JSSO logout and wait for it to complete
     try {
       await jssoService.logout();
     } catch (error) {
       console.error('Error during JSSO logout:', error);
     }
     
-    // Navigate to home page first
+    // Reset logout flag
+    isLoggingOut.current = false;
+    
+    // Navigate to home page AFTER cleanup is complete
     navigate('/', { replace: true });
-    // Clear user from context and localStorage after navigation
-    // Use setTimeout to ensure navigation completes before state update
-    setTimeout(() => {
-      setCurrentUser(null);
-      localStorage.removeItem('currentUser');
-      isLoggingOut.current = false;
-    }, 0);
   };
 
   // Don't redirect if we're in the process of logging out
@@ -3096,16 +3307,85 @@ function InstitutionPage() {
 // Component to handle automatic redirect when user logs in
 function AuthRedirectHandler() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const isLoggedIn = useAppSelector((state) => state.jssoAuth.isLogin);
+  const userRole = useAppSelector((state) => state.jssoAuth.userRole);
+  const isSyncingUser = useAppSelector((state) => state.jssoAuth.isSyncingUser);
+  const userInfo = useAppSelector((state) => state.jssoAuth.userInfo);
   const location = window.location.pathname;
 
+  // Dispatch sync when login succeeds
   useEffect(() => {
-    // Only redirect if user is logged in and not already on dashboard/admin/institution pages
-    if (isLoggedIn && !location.startsWith('/dashboard') && !location.startsWith('/admin') && !location.startsWith('/institution')) {
-      console.log('[AuthRedirectHandler] ✅ User logged in, redirecting to dashboard...');
-      navigate('/dashboard', { replace: true });
+    if (isLoggedIn && userInfo.ssoid && !isSyncingUser && !userRole) {
+      // User just logged in, trigger sync
+      dispatch(syncUser({
+        ssoid: userInfo.ssoid,
+        emailId: userInfo.emailId,
+        primaryEmail: userInfo.primaryEmail,
+        firstName: userInfo.firstName,
+        full_name: userInfo.full_name,
+        phone: userInfo.mobileList ? Object.keys(userInfo.mobileList)[0] : undefined,
+        mobileList: userInfo.mobileList,
+        emailList: userInfo.emailList,
+        ticketId: userInfo.ticketId,
+        identifier: userInfo.identifier,
+      }) as any);
     }
-  }, [isLoggedIn, navigate, location]);
+  }, [isLoggedIn, userInfo.ssoid, dispatch, isSyncingUser, userRole]);
+
+  useEffect(() => {
+    // IMPORTANT: Do NOT redirect on SSO presence alone
+    // Only redirect admin/institution users after successful login and sync completion
+    // Normal users should NOT be redirected - plan selection popup will be shown instead
+    if (isLoggedIn && !isSyncingUser && userRole && 
+        !location.startsWith('/dashboard') && !location.startsWith('/admin') && !location.startsWith('/institution')) {
+      // Only redirect admin and institution users
+      // Normal users (role === 'user') should NOT be redirected here
+      if (userRole === 'admin') {
+        navigate('/admin', { replace: true });
+      } else if (userRole === 'institution') {
+        navigate('/institution', { replace: true });
+      }
+      // Note: Normal users are NOT redirected - they will see plan selection popup instead
+    }
+  }, [isLoggedIn, isSyncingUser, userRole, navigate, location]);
+
+  // Show loader while syncing
+  if (isLoggedIn && isSyncingUser) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        zIndex: 9999
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #3498db',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px'
+          }}></div>
+          <p>Syncing user data...</p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
 
   return null;
 }
@@ -3131,6 +3411,17 @@ function App() {
 
   // Initialize JSSO SDK on app mount
   useEffect(() => {
+    // Clear logout flag on app mount (in case it wasn't cleared)
+    const logoutFlag = sessionStorage.getItem('jsso_logout_flag');
+    if (logoutFlag) {
+      const logoutTime = parseInt(logoutFlag, 10);
+      const timeSinceLogout = Date.now() - logoutTime;
+      // Clear flag if logout was more than 2 seconds ago
+      if (timeSinceLogout >= 2000) {
+        sessionStorage.removeItem('jsso_logout_flag');
+      }
+    }
+    
     console.log('[App] 🚀 Initializing JSSO SDK...');
     jssoService.init().then(() => {
       console.log('[App] ✅ JSSO SDK initialized successfully');

@@ -191,10 +191,9 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
     }
   };
 
-  // Handle opening mock test in new tab
+  // Handle opening mock test in popup modal
   const handleOpenMockTest = (testId: string) => {
-    const testUrl = `/mock-test?id=${testId}`;
-    window.open(testUrl, '_blank');
+    setSelectedTestId(testId);
   };
 
   const handleLogout = async () => {

@@ -3,6 +3,7 @@ import { pgTable, text, varchar, integer, boolean, timestamp, json, serial } fro
 // Users Table
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
+  ssoid: varchar('ssoid', { length: 255 }).unique(), // JSSO SSO ID - unique primary identifier for login
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }), // Made optional - at least email or phone required
   password: varchar('password', { length: 255 }).notNull(),

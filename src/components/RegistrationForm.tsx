@@ -1,27 +1,21 @@
 import { useState, useEffect } from 'react';
-import { X, User, Building2, Mail, Phone, MapPin, CheckCircle, CreditCard, DollarSign, AlertCircle } from 'lucide-react';
-import { paymentService, COURSES, CoursePrice } from '../services/paymentService';
+import { X, User, Building2, Mail, Phone, MapPin, AlertCircle } from 'lucide-react';
 import { leadService, LeadType } from '../services/leadService';
-import { authService, User as UserType } from '../services/authService';
 import Login from './Login';
 
 interface RegistrationFormProps {
   onClose: () => void;
+  onOpenLogin?: () => void; // Callback to open login modal
 }
 
 type RegistrationType = 'individual' | 'university' | 'school' | 'organization';
 
-export default function RegistrationForm({ onClose }: RegistrationFormProps) {
-  const [step, setStep] = useState<'type' | 'form' | 'auth' | 'course' | 'success'>('type');
-  const [registrationType, setRegistrationType] = useState<RegistrationType | null>(null);
+export default function RegistrationForm({ onClose, onOpenLogin }: RegistrationFormProps) {
+  const [showLogin, setShowLogin] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [validationError, setValidationError] = useState<string>('');
-  const [userExists, setUserExists] = useState<boolean>(false);
-  const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
-  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    certificationType: '' as RegistrationType | '',
     name: '',
     email: '',
     phone: '',
@@ -32,23 +26,14 @@ export default function RegistrationForm({ onClose }: RegistrationFormProps) {
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
-    // Save the original overflow value
     const originalOverflow = document.body.style.overflow;
-    // Disable scrolling on body
     document.body.style.overflow = 'hidden';
-
-    // Cleanup: restore scrolling when component unmounts
     return () => {
       document.body.style.overflow = originalOverflow;
     };
   }, []);
 
-  const handleTypeSelect = (type: RegistrationType) => {
-    setRegistrationType(type);
-    setStep('form');
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -62,99 +47,56 @@ export default function RegistrationForm({ onClose }: RegistrationFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError('');
+    
+    // Validate certification type
+    if (!formData.certificationType) {
+      setValidationError('Please select a certification type');
+      return;
+    }
+
+    // Validate that at least email or phone is provided
+    if (!formData.email && !formData.phone) {
+      setValidationError('Either email or phone number is required');
+      return;
+    }
+
+    // Validate organization for non-individual types
+    if (formData.certificationType !== 'individual' && !formData.organization.trim()) {
+      setValidationError('Organization name is required');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Validate that at least email or phone is provided
-      if (!formData.email && !formData.phone) {
-        setValidationError('Either email or phone number is required');
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Check if user already exists (check both email and phone)
-      const emailToCheck = formData.email.trim() || null;
-      const phoneToCheck = formData.phone.trim() || null;
-
-      const userCheckResult = await authService.checkUserExists(emailToCheck, phoneToCheck);
+      // Create lead for all types (including individual)
+      const leadType: LeadType = formData.certificationType as LeadType;
       
-      // Check if user exists in database or JSSO (statusCode 213 means user exists)
-      if (userCheckResult.exists) {
-        // Check if user has a primary identifier set
-        const primaryIdentifier = userCheckResult.primaryIdentifier;
-        
-        if (primaryIdentifier) {
-          // User has a primary identifier - check if the provided identifier matches
-          if (primaryIdentifier === 'email' && !emailToCheck) {
-            setValidationError('This account is registered with email. Please use your email address to login.');
-            setIsSubmitting(false);
-            return;
-          }
-          if (primaryIdentifier === 'phone' && !phoneToCheck) {
-            setValidationError('This account is registered with phone number. Please use your phone number to login.');
-            setIsSubmitting(false);
-            return;
-          }
-          
-          // Set the verified identifier based on primary identifier
-          if (primaryIdentifier === 'email') {
-            setVerifiedEmail(userCheckResult.email || emailToCheck);
-            setVerifiedPhone(null);
-          } else {
-            setVerifiedPhone(userCheckResult.phone || phoneToCheck);
-            setVerifiedEmail(null);
-          }
-        } else {
-          // No primary identifier set yet - user hasn't logged in for the first time
-          // Show login with both options available
-          setVerifiedEmail(userCheckResult.email || emailToCheck);
-          setVerifiedPhone(userCheckResult.phone || phoneToCheck);
-        }
-        
-        // User exists - show login popup before proceeding to plans
-        setUserExists(true);
-        
-        // For Individual Professional, show auth step (login/signup) before course selection
-        if (registrationType === 'individual') {
-          setStep('auth');
-        } else {
-          // For other types, show error (they should login separately)
-          setValidationError('An account with this email or phone number already exists. Please login to continue.');
-          setIsSubmitting(false);
-          return;
-        }
-        setIsSubmitting(false);
-        return;
-      }
+      // For individual, use name as organization if organization is empty
+      const organization = formData.organization.trim() || formData.name;
 
-      // If user doesn't exist, show signup step for individual professionals
-      if (registrationType === 'individual') {
-        // User doesn't exist - show signup step before course selection
-        setUserExists(false);
-        setVerifiedEmail(emailToCheck);
-        setVerifiedPhone(phoneToCheck);
-        setStep('auth');
-        setIsSubmitting(false);
-        return;
+      await leadService.createLead({
+        type: leadType,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        organization: organization,
+        address: formData.address || null,
+        additionalInfo: formData.additionalInfo || null,
+        status: 'new',
+        assignedTo: null,
+        estimatedValue: null,
+        followUpDate: null,
+      });
+
+      // Close registration modal
+      onClose();
+      
+      // Open login modal
+      if (onOpenLogin) {
+        onOpenLogin();
       } else {
-        // For University, School, Organization - create lead
-        const leadType: LeadType = registrationType as LeadType;
-
-        await leadService.createLead({
-          type: leadType,
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          organization: formData.organization,
-          address: formData.address,
-          additionalInfo: formData.additionalInfo,
-          status: 'new',
-          assignedTo: null, // Default value
-          estimatedValue: null, // Default value
-          followUpDate: null, // Default value
-        });
-
-        setStep('success');
+        setShowLogin(true);
       }
     } catch (error) {
       console.error('Error submitting registration:', error);
@@ -164,52 +106,17 @@ export default function RegistrationForm({ onClose }: RegistrationFormProps) {
     }
   };
 
-  const handleCourseSelection = async () => {
-    if (!selectedCourse) {
-      alert('Please select a course');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Create Razorpay order
-      const paymentDetails = await paymentService.createOrder(selectedCourse, {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone
-      });
-
-      // Process payment
-      const paymentResult = await paymentService.processPayment(paymentDetails);
-
-      if (paymentResult.success) {
-        // Verify payment
-        const verified = await paymentService.verifyPayment(
-          paymentResult.paymentId!,
-          paymentDetails.orderId
-        );
-
-        if (verified) {
-          setPaymentCompleted(true);
-          setStep('success');
-          // TODO: Create user account and grant access to dashboard
-        } else {
-          alert('Payment verification failed. Please contact support.');
-        }
-      } else {
-        alert(paymentResult.error || 'Payment failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error processing payment:', error);
-      alert('There was an error processing your payment. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+  const handleOpenLogin = () => {
+    onClose();
+    if (onOpenLogin) {
+      onOpenLogin();
+    } else {
+      setShowLogin(true);
     }
   };
 
-  const getTypeLabel = () => {
-    switch (registrationType) {
+  const getTypeLabel = (type: RegistrationType) => {
+    switch (type) {
       case 'individual':
         return 'Individual Professional';
       case 'university':
@@ -223,127 +130,83 @@ export default function RegistrationForm({ onClose }: RegistrationFormProps) {
     }
   };
 
+  // If showLogin is true, render Login component
+  if (showLogin) {
+    return (
+      <Login
+        onLogin={() => {
+          setShowLogin(false);
+          onClose();
+        }}
+        onClose={() => {
+          setShowLogin(false);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-900">
-            {step === 'type' && 'Select Certification Type'}
-            {step === 'form' && 'Registration Details'}
-            {step === 'course' && 'Select Your Course'}
-            {step === 'success' && (registrationType === 'individual' && paymentCompleted ? 'Payment Successful!' : 'Registration Received!')}
-          </h2>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-slate-200 px-5 py-3 flex justify-between items-center z-10">
+          <h2 className="text-xl font-bold text-slate-900">Registration Details</h2>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 transition-colors"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6">
-          {step === 'type' && (
-            <div className="space-y-4">
-              <p className="text-slate-600 mb-6">
-                Choose the certification category that best describes you or your organization.
-              </p>
-              <button
-                onClick={() => handleTypeSelect('individual')}
-                className="w-full bg-gradient-to-br from-primary-50 to-red-50 border-2 border-primary-200 rounded-xl p-6 hover:border-primary-400 transition-all text-left group"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary-500 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <User className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">Individual Professional</h3>
-                    <p className="text-slate-600 text-sm">
-                      For professionals seeking personal AI competency certification
-                    </p>
-                  </div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleTypeSelect('university')}
-                className="w-full bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 hover:border-green-400 transition-all text-left group"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="bg-green-600 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <Building2 className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">University</h3>
-                    <p className="text-slate-600 text-sm">
-                      For higher education institutions implementing AI-ready programs
-                    </p>
-                  </div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleTypeSelect('school')}
-                className="w-full bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-200 rounded-xl p-6 hover:border-orange-400 transition-all text-left group"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="bg-orange-600 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <Building2 className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">School or College</h3>
-                    <p className="text-slate-600 text-sm">
-                      For educational campuses integrating AI literacy programs
-                    </p>
-                  </div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleTypeSelect('organization')}
-                className="w-full bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-200 rounded-xl p-6 hover:border-violet-400 transition-all text-left group"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="bg-violet-600 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <Building2 className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">AI Service Provider</h3>
-                    <p className="text-slate-600 text-sm">
-                      For organizations providing AI solutions and services
-                    </p>
-                  </div>
-                </div>
-              </button>
-            </div>
-          )}
-
-          {step === 'form' && (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="bg-slate-50 rounded-lg p-4 mb-6">
-                <p className="text-sm text-slate-600">
-                  Selected: <span className="font-semibold text-slate-900">{getTypeLabel()}</span>
-                  <button
-                    type="button"
-                    onClick={() => setStep('type')}
-                    className="ml-2 text-primary-500 hover:text-primary-600 text-sm font-medium"
-                  >
-                    Change
-                  </button>
-                </p>
+        <div className="p-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Validation Error Message */}
+            {validationError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2">
+                <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-red-700">{validationError}</p>
               </div>
+            )}
 
-              {/* Validation Error Message */}
-              {validationError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-700">{validationError}</p>
-                </div>
+            {/* Certification Type - Mandatory Field - Full Width */}
+            <div>
+              <label className="flex items-center space-x-2 text-xs font-semibold text-slate-700 mb-1.5">
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Certification Type <span className="text-red-600">*</span></span>
+              </label>
+              <select
+                name="certificationType"
+                value={formData.certificationType}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-lg focus:border-primary-500 focus:outline-none transition-colors bg-white"
+              >
+                <option value="">Select certification type</option>
+                <option value="individual">Individual Professional</option>
+                <option value="university">University</option>
+                <option value="school">School/College</option>
+                <option value="organization">AI Service Provider</option>
+              </select>
+              {formData.certificationType && (
+                <p className="text-xs text-slate-500 mt-1">
+                  {formData.certificationType === 'individual' 
+                    ? 'For professionals seeking personal AI competency certification'
+                    : formData.certificationType === 'university'
+                    ? 'For higher education institutions implementing AI-ready programs'
+                    : formData.certificationType === 'school'
+                    ? 'For educational campuses integrating AI literacy programs'
+                    : 'For organizations providing AI solutions and services'}
+                </p>
               )}
+            </div>
 
+            {/* Grid Layout for Name and Email - Side by Side */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Full Name */}
               <div>
-                <label className="flex items-center space-x-2 text-sm font-semibold text-slate-700 mb-2">
-                  <User className="w-4 h-4" />
-                  <span>Full Name {registrationType !== 'individual' && '/ Contact Person'}</span>
+                <label className="flex items-center space-x-2 text-xs font-semibold text-slate-700 mb-1.5">
+                  <User className="w-3.5 h-3.5" />
+                  <span className="truncate">Full Name {formData.certificationType !== 'individual' && '/ Contact'}</span>
                 </label>
                 <input
                   type="text"
@@ -351,14 +214,15 @@ export default function RegistrationForm({ onClose }: RegistrationFormProps) {
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-primary-500 focus:outline-none transition-colors"
+                  className="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-lg focus:border-primary-500 focus:outline-none transition-colors"
                   placeholder="Enter your full name"
                 />
               </div>
 
+              {/* Email */}
               <div>
-                <label className="flex items-center space-x-2 text-sm font-semibold text-slate-700 mb-2">
-                  <Mail className="w-4 h-4" />
+                <label className="flex items-center space-x-2 text-xs font-semibold text-slate-700 mb-1.5">
+                  <Mail className="w-3.5 h-3.5" />
                   <span>Email Address</span>
                 </label>
                 <input
@@ -366,15 +230,18 @@ export default function RegistrationForm({ onClose }: RegistrationFormProps) {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                  className="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="your.email@example.com"
                 />
               </div>
+            </div>
 
+            {/* Grid Layout for Phone and Organization - Side by Side */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Phone */}
               <div>
-                <label className="flex items-center space-x-2 text-sm font-semibold text-slate-700 mb-2">
-                  <Phone className="w-4 h-4" />
+                <label className="flex items-center space-x-2 text-xs font-semibold text-slate-700 mb-1.5">
+                  <Phone className="w-3.5 h-3.5" />
                   <span>Phone Number</span>
                 </label>
                 <input
@@ -382,269 +249,89 @@ export default function RegistrationForm({ onClose }: RegistrationFormProps) {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                  className="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="+1 (555) 000-0000"
                 />
               </div>
 
-              {registrationType !== 'individual' && (
+              {/* Organization Name - Required for non-individual */}
+              {formData.certificationType !== 'individual' ? (
                 <div>
-                  <label className="flex items-center space-x-2 text-sm font-semibold text-slate-700 mb-2">
-                    <Building2 className="w-4 h-4" />
-                    <span>Organization Name</span>
+                  <label className="flex items-center space-x-2 text-xs font-semibold text-slate-700 mb-1.5">
+                    <Building2 className="w-3.5 h-3.5" />
+                    <span>Organization <span className="text-red-600">*</span></span>
                   </label>
                   <input
                     type="text"
                     name="organization"
                     value={formData.organization}
                     onChange={handleInputChange}
-                    required={registrationType === 'university' || registrationType === 'school' || registrationType === 'organization'}
-                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                    required={formData.certificationType !== 'individual'}
+                    className="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                     placeholder="Enter organization name"
                   />
                 </div>
-              )}
-
-              <div>
-                <label className="flex items-center space-x-2 text-sm font-semibold text-slate-700 mb-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>Address</span>
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
-                  placeholder="City, State, Country"
-                />
-              </div>
-
-              <div>
-                <label className="flex items-center space-x-2 text-sm font-semibold text-slate-700 mb-2">
-                  <span>Additional Information (Optional)</span>
-                </label>
-                <textarea
-                  name="additionalInfo"
-                  value={formData.additionalInfo}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors resize-none"
-                  placeholder="Any additional information you'd like to share..."
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setStep('type')}
-                  className="flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-semibold"
-                >
-                  Back
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit Registration'}
-                </button>
-              </div>
-            </form>
-          )}
-
-          {step === 'auth' && (
-            <div className="space-y-6">
-              {userExists ? (
-                // User exists - show login with pre-filled email/phone
-                <div>
-                  <p className="text-slate-600 mb-6">
-                    {verifiedEmail && !verifiedPhone 
-                      ? `An account with email ${verifiedEmail} already exists. Please login to continue.`
-                      : verifiedPhone && !verifiedEmail
-                      ? `An account with phone ${verifiedPhone} already exists. Please login to continue.`
-                      : `An account already exists. Please login to continue.`
-                    }
-                  </p>
-                  <Login
-                    initialEmail={verifiedEmail}
-                    initialPhone={verifiedPhone}
-                    initialStep="password"
-                    onLogin={() => {
-                      // After successful login, proceed to course selection
-                      setStep('course');
-                    }}
-                    onClose={() => {
-                      // If user closes login, go back to form
-                      setStep('form');
-                    }}
-                  />
-                </div>
               ) : (
-                // User doesn't exist - show signup form with pre-filled email/phone
-                <div>
-                  <p className="text-slate-600 mb-6">
-                    Create an account to proceed with course selection. You'll need to set a password and complete your profile.
-                  </p>
-                  <Login
-                    initialEmail={verifiedEmail}
-                    initialPhone={verifiedPhone}
-                    initialName={formData.name}
-                    initialStep="signup"
-                    onLogin={() => {
-                      // After successful signup, proceed to course selection
-                      setStep('course');
-                    }}
-                    onClose={() => {
-                      // If user closes signup, go back to form
-                      setStep('form');
-                    }}
-                  />
-                </div>
+                <div></div>
               )}
             </div>
-          )}
 
-          {step === 'course' && (
-            <div className="space-y-6">
-              <div className="bg-slate-50 rounded-lg p-4 mb-6">
-                <p className="text-sm text-slate-600">
-                  Registering as: <span className="font-semibold text-slate-900">{formData.name}</span>
-                  <button
-                    type="button"
-                    onClick={() => setStep('form')}
-                    className="ml-2 text-primary-500 hover:text-primary-600 text-sm font-medium"
-                  >
-                    Edit Details
-                  </button>
-                </p>
-              </div>
+            {/* Address - Full Width */}
+            <div>
+              <label className="flex items-center space-x-2 text-xs font-semibold text-slate-700 mb-1.5">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>Address</span>
+              </label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                placeholder="City, State, Country"
+              />
+            </div>
 
-              <p className="text-slate-600 mb-6">
-                Select the certification track that best fits your career goals and complete payment to get started.
+            {/* Additional Information - Full Width */}
+            <div>
+              <label className="flex items-center space-x-2 text-xs font-semibold text-slate-700 mb-1.5">
+                <span>Additional Information (Optional)</span>
+              </label>
+              <textarea
+                name="additionalInfo"
+                value={formData.additionalInfo}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors resize-none"
+                placeholder="Any additional information you'd like to share..."
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Registration'}
+              </button>
+            </div>
+
+            {/* Already a user? Log in CTA */}
+            <div className="pt-1 text-center">
+              <p className="text-xs text-slate-600">
+                Already a user?{' '}
+                <button
+                  type="button"
+                  onClick={handleOpenLogin}
+                  className="text-primary-600 hover:text-primary-700 font-semibold underline"
+                >
+                  Log in
+                </button>
               </p>
-
-              <div className="space-y-4">
-                {COURSES.map((course) => (
-                  <button
-                    key={course.id}
-                    type="button"
-                    onClick={() => setSelectedCourse(course.id)}
-                    className={`w-full border-2 rounded-xl p-6 text-left transition-all hover:shadow-md ${
-                      selectedCourse === course.id
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-slate-200 bg-white hover:border-primary-300'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-slate-900 mb-1">{course.name}</h3>
-                        <p className="text-sm text-slate-600">{course.description}</p>
-                      </div>
-                      <div className="ml-4 text-right">
-                        <div className="flex items-center space-x-1 text-2xl font-bold text-primary-600">
-                          <span className="text-base">₹</span>
-                          <span>{course.price.toLocaleString()}</span>
-                        </div>
-                        <p className="text-xs text-slate-500">{course.currency}</p>
-                      </div>
-                    </div>
-                    {selectedCourse === course.id && (
-                      <div className="flex items-center space-x-2 mt-3 text-sm text-primary-600 font-semibold">
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Selected</span>
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setStep('form')}
-                  className="flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-semibold"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCourseSelection}
-                  disabled={!selectedCourse || isSubmitting}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-red-600 text-white rounded-lg hover:opacity-90 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                >
-                  {isSubmitting ? (
-                    <span>Processing...</span>
-                  ) : (
-                    <>
-                      <CreditCard className="w-5 h-5" />
-                      <span>Proceed to Payment</span>
-                    </>
-                  )}
-                </button>
-              </div>
             </div>
-          )}
-
-          {step === 'success' && (
-            <div className="text-center py-8">
-              <div className="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-12 h-12 text-green-600" />
-              </div>
-
-              {registrationType === 'individual' && paymentCompleted ? (
-                <>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Payment Successful!</h3>
-                  <p className="text-slate-600 mb-8 max-w-md mx-auto">
-                    Your payment has been processed successfully. Welcome to AI Ready certification program!
-                  </p>
-                  <div className="bg-primary-50 border border-primary-200 rounded-lg p-6 mb-6">
-                    <h4 className="font-bold text-slate-900 mb-2">Next Steps:</h4>
-                    <ol className="text-left text-slate-600 space-y-2 text-sm">
-                      <li>1. Check your email for account activation link</li>
-                      <li>2. Login to your dashboard and start learning</li>
-                      <li>3. Complete course modules and practice tests</li>
-                      <li>4. Schedule your certification exam on Talview</li>
-                      <li>5. Receive your certificate via Credly upon passing</li>
-                    </ol>
-                  </div>
-                  <button
-                    onClick={onClose}
-                    className="bg-gradient-to-r from-purple-600 to-red-600 text-white px-8 py-3 rounded-lg hover:opacity-90 transition-all font-semibold"
-                  >
-                    Close
-                  </button>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Registration Received!</h3>
-                  <p className="text-slate-600 mb-8 max-w-md mx-auto">
-                    Thank you for your interest in AI Ready certification for your {getTypeLabel().toLowerCase()}. Our team will contact you shortly to discuss the program details and pricing.
-                  </p>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                    <h4 className="font-bold text-slate-900 mb-2">What happens next?</h4>
-                    <ol className="text-left text-slate-600 space-y-2 text-sm">
-                      <li>1. Our sales team will reach out within 24-48 hours</li>
-                      <li>2. We'll schedule a consultation to understand your needs</li>
-                      <li>3. You'll receive a customized proposal with pricing</li>
-                      <li>4. Once approved, we'll onboard your institution</li>
-                    </ol>
-                  </div>
-                  <p className="text-sm text-slate-500 mb-6">
-                    You can also reach us at <a href="mailto:sales@etaiready.com" className="text-primary-600 font-semibold hover:underline">sales@etaiready.com</a>
-                  </p>
-                  <button
-                    onClick={onClose}
-                    className="bg-primary-500 text-white px-8 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
-                  >
-                    Close
-                  </button>
-                </>
-              )}
-            </div>
-          )}
+          </form>
         </div>
       </div>
     </div>

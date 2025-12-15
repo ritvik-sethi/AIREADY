@@ -298,11 +298,38 @@ export const LoginFlow: React.FC<LoginFlowProps> = ({ onSuccess, onClose, embedd
     };
 
     const result: any = await dispatch(registerNewUser(userDetails) as unknown as any);
+    console.log('Registration result:', result);
+    
     if (registerNewUser.fulfilled.match(result)) {
-      const response = result.payload as { data?: { ssoid?: string } };
-      if (response?.data?.ssoid) {
-        dispatch(setSsoid(response.data.ssoid));
+      const response = result.payload as { status?: string; data?: { ssoid?: string }; error?: any };
+      console.log('Registration response:', response);
+      console.log('Response status:', response?.status);
+      
+      // Check response status (handle both uppercase and lowercase, and different formats)
+      const status = response?.status?.toUpperCase();
+      
+      if (status === 'FAILURE' || response?.error || (!response?.status && !response?.data)) {
+        console.log('Handling FAILURE status');
+        // Show error message: "This user is already registered"
+        dispatch(setPasswordError('This user is already registered'));
+        // Ensure we stay on setPassword screen
+        dispatch(setCurrentScreen('setPassword'));
+      } else if (status === 'SUCCESS' || response?.data?.ssoid) {
+        console.log('Handling SUCCESS status - navigating to otpLogin');
+        // Navigate to OTP verification screen
+        dispatch(setCurrentScreen('otpLogin'));
+        // Set ssoid if available
+        if (response?.data?.ssoid) {
+          dispatch(setSsoid(response.data.ssoid));
+        }
+      } else {
+        console.log('Unknown status:', response?.status, 'Full response:', response);
+        // Default to showing error if we can't determine success
+        dispatch(setPasswordError('Registration failed. Please try again.'));
       }
+    } else if (registerNewUser.rejected.match(result)) {
+      console.log('Registration was rejected:', result.error);
+      dispatch(setPasswordError('Registration failed. Please try again.'));
     }
   };
 

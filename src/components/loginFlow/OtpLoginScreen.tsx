@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { isValidEmail, isValidMobile } from '../../utils/validation';
 
 interface OtpLoginScreenProps {
   emailOrMobile: string;
@@ -94,12 +95,17 @@ export const OtpLoginScreen: React.FC<OtpLoginScreenProps> = ({
   };
 
   const otpString = otp.join('');
+  
+  // Determine if it's email or mobile
+  const isEmail = isValidEmail(emailOrMobile.trim());
+  const isMobile = isValidMobile(emailOrMobile.trim());
+  const verificationType = isEmail ? 'email' : isMobile ? 'mobile' : 'email/mobile';
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] p-6">
       <div className="w-full max-w-md">
         <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
-          Enter Verification Code
+          Verify your {verificationType}
         </h2>
         <p className="text-gray-600 mb-2 text-center">
           We've sent a 6-digit code to

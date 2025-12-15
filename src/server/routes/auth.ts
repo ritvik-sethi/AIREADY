@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticateUser, getUserByEmail, checkUserExists, createUser, getUserCourseProgress, getUserMockTestResults } from '../controllers/authController';
+import { authenticateUser, getUserByEmail, checkUserExists, createUser, getUserCourseProgress, getUserMockTestResults, syncUserToDatabase } from '../controllers/authController';
 
 const authRouter = Router();
 
@@ -128,6 +128,29 @@ authRouter.get('/user/:userId/mock-tests', async (req, res) => {
   } catch (error: any) {
     console.error('Error fetching user mock test results:', error);
     console.error('Error details:', error.message, error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+});
+
+// Sync user to database using ssoid as primary identifier
+authRouter.post('/sync-user', async (req, res) => {
+  try {
+    const userInfo = req.body;
+    if (!userInfo.ssoid) {
+      return res.status(400).json({ success: false, message: 'ssoid is required' });
+    }
+    const user = await syncUserToDatabase(userInfo);
+    // Return user with permissions array (empty for now, can be populated from database later)
+    // For admin users, permissions would come from their adminRole
+    // For normal users, permissions array is empty by default
+    const permissions: string[] = user.role === 'admin' ? [] : []; // TODO: Populate from database based on role
+    res.json({ success: true, user: { ...user, permissions } });
+  } catch (error: any) {
+    console.error('Error syncing user to database:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Server error',

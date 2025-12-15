@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import Login from './Login';
 import RegistrationForm from './RegistrationForm';
+import PlanSelectionModal from './PlanSelectionModal';
 import { User } from '../services/authService';
-import { useIsAuthenticated } from '../hooks/useJSSO';
+import { useIsAuthenticated, useUserInfo } from '../hooks/useJSSO';
+import { useAppSelector } from '../store/hooks';
 import { jssoService } from '../services/jssoService';
 import { store } from '../store';
 import { clearUserInfo } from '../store/slices/jssoAuthSlice';
@@ -13,10 +15,22 @@ import styles from './Header.module.css';
 export default function Header() {
   const navigate = useNavigate();
   const isLoggedIn = useIsAuthenticated();
+  const userRole = useAppSelector((state) => state.jssoAuth.userRole);
+  const userInfo = useAppSelector((state) => state.jssoAuth.userInfo);
   const [activeLink, setActiveLink] = useState<string>('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
+  const [showPlanSelectionModal, setShowPlanSelectionModal] = useState<boolean>(false);
+  
+  // Check if we just logged out - if so, treat as logged out
+  const logoutFlag = typeof window !== 'undefined' ? sessionStorage.getItem('jsso_logout_flag') : null;
+  const justLoggedOut = logoutFlag && (Date.now() - parseInt(logoutFlag, 10)) < 2000;
+  
+  // Check if user is a normal user - ensure we have both login status AND role
+  // Also check that userInfo has ssoid to avoid stale state after logout
+  // Respect logout flag to prevent stale state
+  const isNormalUser = !justLoggedOut && isLoggedIn && userRole === 'user' && !!userInfo?.ssoid;
 
   useEffect(() => {
     // Set initial active link based on hash
@@ -77,13 +91,17 @@ export default function Header() {
     // Close modal
     setShowLoginModal(false);
     setMobileMenuOpen(false);
-    // Always redirect to dashboard after successful login
-    if (user.role.toLowerCase() === 'admin') {
-      navigate('/admin', { replace: true });
-    } else if (user.role.toLowerCase() === 'institution') {
-      navigate('/institution', { replace: true });
+    // For normal users, plan selection popup will be opened by Login component
+    // For admin/institution, navigation will be handled by AuthRedirectHandler
+  };
+
+  const handleGetCertified = () => {
+    if (isNormalUser) {
+      // Logged-in normal user: Open plan selection popup directly
+      setShowPlanSelectionModal(true);
     } else {
-      navigate('/dashboard', { replace: true });
+      // Logged-out user: Show registration modal
+      setShowRegisterModal(true);
     }
   };
 
@@ -161,14 +179,12 @@ export default function Header() {
             >
               {isLoggedIn ? 'Logout' : 'Login'}
             </button>
-            {!isLoggedIn && (
-              <button
-                onClick={() => setShowRegisterModal(true)}
-                className={styles.ctaButton}
-              >
-                Get Certified
-              </button>
-            )}
+            <button
+              onClick={handleGetCertified}
+              className={styles.ctaButton}
+            >
+              Get Certified
+            </button>
           </div>
           {/* Mobile Menu Button */}
           <button
@@ -224,17 +240,15 @@ export default function Header() {
               >
                 {isLoggedIn ? 'Logout' : 'Login'}
               </button>
-              {!isLoggedIn && (
-                <button
-                  onClick={() => {
-                    setShowRegisterModal(true);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={styles.mobileCtaButton}
-                >
-                  Get Certified
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  handleGetCertified();
+                  setMobileMenuOpen(false);
+                }}
+                className={styles.mobileCtaButton}
+              >
+                Get Certified
+              </button>
             </div>
           </div>
         </div>
@@ -244,14 +258,29 @@ export default function Header() {
       {showLoginModal && (
         <Login 
           onLogin={handleLogin} 
-          onClose={handleCloseLogin} 
+          onClose={handleCloseLogin}
+          onOpenPlanSelection={() => {
+            setShowLoginModal(false);
+            setShowPlanSelectionModal(true);
+          }}
         />
       )}
 
       {/* Registration Modal */}
       {showRegisterModal && (
         <RegistrationForm 
-          onClose={handleCloseRegister} 
+          onClose={handleCloseRegister}
+          onOpenLogin={() => {
+            setShowRegisterModal(false);
+            setShowLoginModal(true);
+          }}
+        />
+      )}
+
+      {/* Plan Selection Modal */}
+      {showPlanSelectionModal && (
+        <PlanSelectionModal 
+          onClose={() => setShowPlanSelectionModal(false)}
         />
       )}
     </nav>

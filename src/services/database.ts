@@ -10,6 +10,35 @@ const API_BASE_URL = '/api'; // Base URL for your API
 // USER OPERATIONS
 // ============================================
 
+// Sync user to database using ssoid as primary identifier
+export async function syncUserToDatabase(userInfo: {
+  ssoid: string;
+  emailId?: string;
+  primaryEmail?: string;
+  firstName?: string;
+  full_name?: string;
+  phone?: string;
+  mobileList?: Record<string, string>;
+  emailList?: Record<string, string>;
+  ticketId?: string;
+  identifier?: string;
+}) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/sync-user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userInfo),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error syncing user to database:', error);
+    throw error;
+  }
+}
+
 export async function getAllUsers() {
   try {
     const response = await fetch(`${API_BASE_URL}/users`);
@@ -186,6 +215,25 @@ export async function deleteUser(userId: number) {
     return response.ok;
   } catch (error) {
     console.error('Error deleting user:', error);
+    throw error;
+  }
+}
+
+// Update user role by ssoid
+export async function updateUserRoleBySsoid(ssoid: string, role: 'user' | 'admin' | 'institution') {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/ssoid/${ssoid}/role`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating user role:', error);
     throw error;
   }
 }

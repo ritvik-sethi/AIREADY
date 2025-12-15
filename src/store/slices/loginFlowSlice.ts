@@ -103,7 +103,9 @@ export const checkUserExists = createAsyncThunk(
 export const registerNewUser = createAsyncThunk(
   'loginFlow/registerUser',
   async (userDetails: UserRegistrationDetails, { dispatch }) => {
+    console.log('Registering user:', userDetails);
     const response = await registerUser(userDetails, dispatch as AppDispatch);
+    console.log('Registration response:', response);
     return response;
   }
 );
@@ -425,9 +427,18 @@ const loginFlowSlice = createSlice({
         state.registrationResponse = action.payload;
         
         const response: any = action.payload;
-        if (response?.status === 'SUCCESS') {
+        const status = response?.status?.toUpperCase?.() || response?.status;
+        
+        if (status === 'SUCCESS' || response?.data?.ssoid) {
           state.ssoid = response?.data?.ssoid || '';
-          state.currentScreen = 'otpLogin';
+          state.currentScreen = 'otpLogin'; // Navigate to OTP verification screen
+          state.passwordError = ''; // Clear any previous errors
+        } else if (status === 'FAILURE' || response?.error) {
+          state.passwordError = 'This user is already registered';
+          // Stay on setPassword screen to show the error
+          if (state.currentScreen !== 'setPassword') {
+            state.currentScreen = 'setPassword';
+          }
         } else {
           state.passwordError = 'Registration failed. Please try again.';
         }

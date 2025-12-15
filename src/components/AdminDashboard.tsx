@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, BookOpen, FileText, Award, TrendingUp, Settings, LogOut, User as UserIcon, CheckCircle, XCircle, Clock, Search, Plus, Mail, Shield, Trash2, Building2, UserCog } from 'lucide-react';
+import { Users, BookOpen, FileText, Award, TrendingUp, Settings, User as UserIcon, CheckCircle, XCircle, Clock, Search, Plus, Mail, Shield, Trash2, Building2, UserCog } from 'lucide-react';
 import { User } from '../services/authService';
 import { authService } from '../services/authService';
 import { getAllUsers, getAllModules, getAllMockTests, getAllRoles, getAllCertificationTracks, createUser, deleteUser, updateUser, createMockTest, updateMockTest, deleteMockTest } from '../services/database';
@@ -12,6 +12,9 @@ import SettingsConfiguration from './admin/SettingsConfiguration';
 import RoleManagement from './admin/RoleManagement';
 import InstitutionsManager from './admin/InstitutionsManager';
 import LeadsManager from './admin/LeadsManager';
+import DashboardHeader from './dashboard/DashboardHeader';
+import UserProfile from './UserProfile';
+import styles from './AdminDashboard.module.css';
 import { store } from '../store';
 import { clearUserInfo } from '../store/slices/jssoAuthSlice';
 import { jssoService } from '../services/jssoService';
@@ -29,6 +32,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const [editingTest, setEditingTest] = useState<any>(null);
   const [showCourseEditor, setShowCourseEditor] = useState(false);
   const [showTestEditor, setShowTestEditor] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [newAdmin, setNewAdmin] = useState({
@@ -117,6 +121,50 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       // Still clear localStorage and call parent logout handler even if logout fails
       localStorage.removeItem('currentUser');
       onLogout();
+    }
+  };
+
+  const handleProfileClick = () => {
+    setShowProfile(true);
+  };
+
+  const handleProfileSave = async (updatedUser: User) => {
+    try {
+      // Update admin user in database
+      await updateUser(parseInt(updatedUser.id), {
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.profile.phone || null,
+        organization: updatedUser.profile.organization || null,
+        designation: updatedUser.profile.designation || null,
+        location: updatedUser.profile.location || null,
+        bio: updatedUser.profile.bio || null,
+        photo: updatedUser.profile.photo || null,
+        idDocument: updatedUser.profile.idDocument || null,
+        verified: updatedUser.profile.verified,
+        verifiedBy: updatedUser.profile.verifiedBy || null,
+        verifiedDate: updatedUser.profile.verifiedDate || null,
+        enrollmentStatus: updatedUser.enrollment.status,
+        enrolledDate: updatedUser.enrollment.enrolledDate || null,
+        expiryDate: updatedUser.enrollment.expiryDate || null,
+        examStatus: updatedUser.examStatus,
+        remainingAttempts: updatedUser.remainingAttempts,
+        credlyBadgeUrl: updatedUser.credlyBadgeUrl || null,
+        certificateNumber: updatedUser.certificateNumber || null,
+        certificationTrack: updatedUser.certificationTrack || null
+      });
+
+      // Update localStorage with new user data
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      
+      alert('Profile updated successfully!');
+      setShowProfile(false);
+      
+      // Optionally refresh the page or update parent component
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Error updating profile. Please try again.');
     }
   };
 
@@ -356,6 +404,14 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   return (
     <>
       {/* Modals */}
+      {showProfile && (
+        <UserProfile
+          user={user}
+          onClose={() => setShowProfile(false)}
+          onSave={handleProfileSave}
+        />
+      )}
+
       {selectedUser && (
         <UserDetailsModal
           user={selectedUser}
@@ -702,214 +758,169 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
         </div>
       )}
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-20">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <img
-                src="https://economictimes.indiatimes.com/photo/119331595.cms"
-                alt="AI Ready Logo"
-                className="h-10 object-contain"
-              />
-              <span className="text-xl font-bold text-slate-900">Admin Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-purple-100 rounded-lg">
-                <UserIcon className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium text-purple-900">{user.name}</span>
-                <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded-full">Admin</span>
+      <div className={styles.dashboard}>
+        <DashboardHeader
+          userName={user.name}
+          onProfileClick={handleProfileClick}
+          onLogout={handleLogout}
+        />
+
+        <main className={styles.main}>
+          {/* Welcome Section */}
+          <div className={styles.welcomeSection}>
+            <h1 className={styles.welcomeTitle}>Welcome, {user.name}!</h1>
+            <p className={styles.welcomeSubtitle}>Manage users, courses, and monitor platform performance</p>
+          </div>
+
+          {/* Stats Grid */}
+          <div className={styles.statsGrid}>
+            <div className={styles.statCard}>
+              <div className={styles.statCardHeader}>
+                <Users className={`${styles.statIcon} ${styles.iconBlue}`} />
+                <span className={styles.statValue}>{totalUsers}</span>
               </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="font-semibold">Logout</span>
-              </button>
+              <h3 className={styles.statLabel}>Total Users</h3>
+              <p className={styles.statSubtext}>{activeUsers} active learners</p>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statCardHeader}>
+                <CheckCircle className={`${styles.statIcon} ${styles.iconGreen}`} />
+                <span className={styles.statValue}>{passedUsers}</span>
+              </div>
+              <h3 className={styles.statLabel}>Certified Users</h3>
+              <p className={styles.statSubtext}>{totalUsers > 0 ? Math.round((passedUsers/totalUsers)*100) : 0}% success rate</p>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statCardHeader}>
+                <BookOpen className={`${styles.statIcon}`} style={{ color: '#667eea' }} />
+                <span className={styles.statValue}>{totalModules}</span>
+              </div>
+              <h3 className={styles.statLabel}>Course Modules</h3>
+              <p className={styles.statSubtext}>Active curriculum</p>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statCardHeader}>
+                <FileText className={`${styles.statIcon}`} style={{ color: '#f59e0b' }} />
+                <span className={styles.statValue}>{totalTests}</span>
+              </div>
+              <h3 className={styles.statLabel}>Mock Tests</h3>
+              <p className={styles.statSubtext}>Available assessments</p>
             </div>
           </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-20 py-8">
-        {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-purple-600 to-red-600 rounded-2xl p-8 text-white mb-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome, {user.name}!</h1>
-          <p className="text-white/90">Manage users, courses, and monitor platform performance</p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <Users className="w-8 h-8 text-blue-600" />
-              <span className="text-3xl font-bold text-slate-900">{totalUsers}</span>
-            </div>
-            <h3 className="text-slate-600 font-semibold">Total Users</h3>
-            <p className="text-xs text-slate-500 mt-1">{activeUsers} active learners</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-              <span className="text-3xl font-bold text-slate-900">{passedUsers}</span>
-            </div>
-            <h3 className="text-slate-600 font-semibold">Certified Users</h3>
-            <p className="text-xs text-slate-500 mt-1">{Math.round((passedUsers/totalUsers)*100)}% success rate</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <BookOpen className="w-8 h-8 text-purple-600" />
-              <span className="text-3xl font-bold text-slate-900">{totalModules}</span>
-            </div>
-            <h3 className="text-slate-600 font-semibold">Course Modules</h3>
-            <p className="text-xs text-slate-500 mt-1">Active curriculum</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <FileText className="w-8 h-8 text-orange-600" />
-              <span className="text-3xl font-bold text-slate-900">{totalTests}</span>
-            </div>
-            <h3 className="text-slate-600 font-semibold">Mock Tests</h3>
-            <p className="text-xs text-slate-500 mt-1">Available assessments</p>
-          </div>
-        </div>
 
         {/* Tabs Navigation */}
-        <div className="bg-white rounded-xl shadow-md mb-8">
-          <div className="border-b border-slate-200">
-            <nav className="flex flex-wrap gap-2 px-6 py-2">
+        <div className={styles.tabsContainer}>
+          <div className={styles.tabsNav}>
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`${styles.tabButton} ${
+                activeTab === 'overview'
+                  ? styles.tabButtonActive
+                  : styles.tabButtonInactive
+              }`}
+            >
+              <TrendingUp className={styles.tabIcon} />
+              <span>Overview</span>
+            </button>
+            {hasPermission('manage_users') && (
               <button
-                onClick={() => setActiveTab('overview')}
-                className={`py-3 px-4 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
-                  activeTab === 'overview'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                onClick={() => setActiveTab('users')}
+                className={`${styles.tabButton} ${
+                  activeTab === 'users'
+                    ? styles.tabButtonActive
+                    : styles.tabButtonInactive
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <TrendingUp className="w-4 h-4" />
-                  <span>Overview</span>
-                </div>
+                <Users className={styles.tabIcon} />
+                <span>Users</span>
               </button>
-              {hasPermission('manage_users') && (
-                <button
-                  onClick={() => setActiveTab('users')}
-                  className={`py-3 px-4 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'users'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <Users className="w-4 h-4" />
-                    <span>Users</span>
-                  </div>
-                </button>
-              )}
+            )}
+            <button
+              onClick={() => setActiveTab('programs')}
+              className={`${styles.tabButton} ${
+                activeTab === 'programs'
+                  ? styles.tabButtonActive
+                  : styles.tabButtonInactive
+              }`}
+            >
+              <Award className={styles.tabIcon} />
+              <span>Certification Programs</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('mockTests')}
+              className={`${styles.tabButton} ${
+                activeTab === 'mockTests'
+                  ? styles.tabButtonActive
+                  : styles.tabButtonInactive
+              }`}
+            >
+              <FileText className={styles.tabIcon} />
+              <span>Mock Tests</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('institutions')}
+              className={`${styles.tabButton} ${
+                activeTab === 'institutions'
+                  ? styles.tabButtonActive
+                  : styles.tabButtonInactive
+              }`}
+            >
+              <Building2 className={styles.tabIcon} />
+              <span>Institutions</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('leads')}
+              className={`${styles.tabButton} ${
+                activeTab === 'leads'
+                  ? styles.tabButtonActive
+                  : styles.tabButtonInactive
+              }`}
+            >
+              <UserCog className={styles.tabIcon} />
+              <span>Leads</span>
+            </button>
+            {hasPermission('bulk_operations') && (
               <button
-                onClick={() => setActiveTab('programs')}
-                className={`py-3 px-4 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
-                  activeTab === 'programs'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                onClick={() => setActiveTab('bulk')}
+                className={`${styles.tabButton} ${
+                  activeTab === 'bulk'
+                    ? styles.tabButtonActive
+                    : styles.tabButtonInactive
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <Award className="w-4 h-4" />
-                  <span>Certification Programs</span>
-                </div>
+                <Mail className={styles.tabIcon} />
+                <span>Bulk Ops</span>
               </button>
+            )}
+            {hasPermission('manage_roles') && (
               <button
-                onClick={() => setActiveTab('mockTests')}
-                className={`py-3 px-4 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
-                  activeTab === 'mockTests'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                onClick={() => setActiveTab('roles')}
+                className={`${styles.tabButton} ${
+                  activeTab === 'roles'
+                    ? styles.tabButtonActive
+                    : styles.tabButtonInactive
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <FileText className="w-4 h-4" />
-                  <span>Mock Tests</span>
-                </div>
+                <Shield className={styles.tabIcon} />
+                <span>Roles</span>
               </button>
+            )}
+            {hasPermission('manage_settings') && (
               <button
-                onClick={() => setActiveTab('institutions')}
-                className={`py-3 px-4 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
-                  activeTab === 'institutions'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                onClick={() => setActiveTab('settings')}
+                className={`${styles.tabButton} ${
+                  activeTab === 'settings'
+                    ? styles.tabButtonActive
+                    : styles.tabButtonInactive
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <Building2 className="w-4 h-4" />
-                  <span>Institutions</span>
-                </div>
+                <Settings className={styles.tabIcon} />
+                <span>Settings</span>
               </button>
-              <button
-                onClick={() => setActiveTab('leads')}
-                className={`py-3 px-4 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
-                  activeTab === 'leads'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <UserCog className="w-4 h-4" />
-                  <span>Leads</span>
-                </div>
-              </button>
-              {hasPermission('bulk_operations') && (
-                <button
-                  onClick={() => setActiveTab('bulk')}
-                  className={`py-3 px-4 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'bulk'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <Mail className="w-4 h-4" />
-                    <span>Bulk Ops</span>
-                  </div>
-                </button>
-              )}
-              {hasPermission('manage_roles') && (
-                <button
-                  onClick={() => setActiveTab('roles')}
-                  className={`py-3 px-4 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'roles'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <Shield className="w-4 h-4" />
-                    <span>Roles</span>
-                  </div>
-                </button>
-              )}
-              {hasPermission('manage_settings') && (
-                <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`py-3 px-4 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'settings'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <Settings className="w-4 h-4" />
-                    <span>Settings</span>
-                  </div>
-                </button>
-              )}
-            </nav>
+            )}
           </div>
 
-          <div className="p-6">
+          <div className={styles.tabContent}>
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
@@ -965,140 +976,140 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             {/* Users Tab */}
             {activeTab === 'users' && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-900">User Management</h2>
-                  <div className="flex items-center space-x-3">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>User Management</h2>
+                  <div className={styles.sectionActions}>
+                    <div className={styles.searchBar}>
+                      <Search className={styles.searchIcon} />
                       <input
                         type="text"
                         placeholder="Search users..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 border-2 border-slate-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                        className={styles.searchInput}
                       />
                     </div>
                     {hasPermission('manage_users') && (
                       <button
                         onClick={() => setShowAddUser(true)}
-                        className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all font-semibold whitespace-nowrap"
+                        className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
                       >
-                        <Plus className="w-5 h-5" />
+                        <Plus className={styles.actionButtonIcon} />
                         <span>Add User</span>
                       </button>
                     )}
                     {hasPermission('manage_roles') && (
                       <button
                         onClick={() => setShowAddAdmin(true)}
-                        className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-red-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all font-semibold whitespace-nowrap"
+                        className={`${styles.actionButton} ${styles.actionButtonPrimary}`}
                       >
-                        <Plus className="w-5 h-5" />
+                        <Plus className={styles.actionButtonIcon} />
                         <span>Add Admin</span>
                       </button>
                     )}
                   </div>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-slate-100 border-b-2 border-slate-200">
-                        <th className="text-left p-4 font-bold text-slate-700">User</th>
-                        <th className="text-left p-4 font-bold text-slate-700">Email</th>
-                        <th className="text-left p-4 font-bold text-slate-700">Organization</th>
-                        <th className="text-left p-4 font-bold text-slate-700">Verified</th>
-                        <th className="text-left p-4 font-bold text-slate-700">Progress</th>
-                        <th className="text-left p-4 font-bold text-slate-700">Exam Status</th>
-                        <th className="text-left p-4 font-bold text-slate-700">Actions</th>
+                <div className={styles.tableContainer}>
+                  <table className={styles.table}>
+                    <thead className={styles.tableHeader}>
+                      <tr>
+                        <th className={styles.tableHeaderCell}>User</th>
+                        <th className={styles.tableHeaderCell}>Email</th>
+                        <th className={styles.tableHeaderCell}>Organization</th>
+                        <th className={styles.tableHeaderCell}>Verified</th>
+                        <th className={styles.tableHeaderCell}>Progress</th>
+                        <th className={styles.tableHeaderCell}>Exam Status</th>
+                        <th className={styles.tableHeaderCell}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredUsers.map((u) => (
-                        <tr key={u.id} className="border-b border-slate-200 hover:bg-slate-50">
-                          <td className="p-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-slate-200">
+                        <tr key={u.id} className={styles.tableRow}>
+                          <td className={styles.tableCell}>
+                            <div className={styles.userInfo}>
+                              <div className={styles.userAvatar}>
                                 {u.profile.photo ? (
                                   <img
                                     src={u.profile.photo}
                                     alt={u.name}
-                                    className="w-full h-full object-cover"
+                                    className={styles.userAvatarImg}
                                   />
                                 ) : (
-                                  <div className="w-full h-full bg-gradient-to-r from-purple-600 to-red-600 flex items-center justify-center text-white font-bold">
+                                  <div className={styles.userAvatarPlaceholder}>
                                     {u.name.charAt(0)}
                                   </div>
                                 )}
                               </div>
-                              <span className="font-semibold text-slate-900">{u.name}</span>
+                              <span className={styles.userName}>{u.name}</span>
                             </div>
                           </td>
-                          <td className="p-4 text-slate-600">{u.email}</td>
-                          <td className="p-4 text-slate-600">{u.profile.organization}</td>
-                          <td className="p-4">
+                          <td className={styles.tableCell}>{u.email}</td>
+                          <td className={styles.tableCell}>{u.profile.organization}</td>
+                          <td className={styles.tableCell}>
                             {u.profile.verified ? (
-                              <span className="inline-flex items-center space-x-1 bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">
-                                <CheckCircle className="w-3 h-3" />
+                              <span className={`${styles.badge} ${styles.badgeSuccess}`}>
+                                <CheckCircle className={styles.badgeIcon} />
                                 <span>Verified</span>
                               </span>
                             ) : (
-                              <span className="inline-flex items-center space-x-1 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">
-                                <Clock className="w-3 h-3" />
+                              <span className={`${styles.badge} ${styles.badgeWarning}`}>
+                                <Clock className={styles.badgeIcon} />
                                 <span>Pending</span>
                               </span>
                             )}
                           </td>
-                          <td className="p-4">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-24 bg-slate-200 rounded-full h-2">
+                          <td className={styles.tableCell}>
+                            <div className={styles.actionGroup}>
+                              <div className={styles.progressBar}>
                                 <div
-                                  className="bg-gradient-to-r from-purple-600 to-red-600 h-full rounded-full"
+                                  className={styles.progressBarFill}
                                   style={{ width: `${u.courseProgress?.overallProgress || 0}%` }}
                                 ></div>
                               </div>
-                              <span className="text-sm font-semibold text-slate-900">{u.courseProgress?.overallProgress || 0}%</span>
+                              <span className={styles.progressValue}>{u.courseProgress?.overallProgress || 0}%</span>
                             </div>
                           </td>
-                          <td className="p-4">
+                          <td className={styles.tableCell}>
                             {u.examStatus === 'passed' && (
-                              <span className="inline-flex items-center space-x-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-                                <CheckCircle className="w-4 h-4" />
+                              <span className={`${styles.badge} ${styles.badgeSuccess}`}>
+                                <CheckCircle className={styles.badgeIcon} />
                                 <span>Passed</span>
                               </span>
                             )}
                             {u.examStatus === 'failed' && (
-                              <span className="inline-flex items-center space-x-1 bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
-                                <XCircle className="w-4 h-4" />
+                              <span className={`${styles.badge} ${styles.badgeDanger}`}>
+                                <XCircle className={styles.badgeIcon} />
                                 <span>Failed</span>
                               </span>
                             )}
                             {u.examStatus === 'attempted' && (
-                              <span className="inline-flex items-center space-x-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
-                                <Clock className="w-4 h-4" />
+                              <span className={`${styles.badge} ${styles.badgeInfo}`}>
+                                <Clock className={styles.badgeIcon} />
                                 <span>Attempted</span>
                               </span>
                             )}
                             {u.examStatus === 'not_attempted' && (
-                              <span className="inline-flex items-center space-x-1 bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-semibold">
-                                <Clock className="w-4 h-4" />
+                              <span className={`${styles.badge} ${styles.badgeNeutral}`}>
+                                <Clock className={styles.badgeIcon} />
                                 <span>Not Attempted</span>
                               </span>
                             )}
                           </td>
-                          <td className="p-4">
-                            <div className="flex items-center space-x-3">
+                          <td className={styles.tableCell}>
+                            <div className={styles.actionGroup}>
                               <button
                                 onClick={() => setSelectedUser(u)}
-                                className="text-purple-600 hover:text-purple-800 font-semibold"
+                                className={styles.actionLink}
                               >
                                 View Details
                               </button>
                               {hasPermission('delete_users') && (
                                 <button
                                   onClick={() => handleDeleteUser(u.id, u.name)}
-                                  className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                  className={`${styles.actionButtonSmall} ${styles.actionButtonSmallDanger}`}
                                   title="Delete user"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 className={styles.actionIcon} />
                                 </button>
                               )}
                             </div>
@@ -1117,92 +1128,91 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             {/* Mock Tests Tab */}
             {activeTab === 'mockTests' && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-900">Mock Tests Management</h2>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Mock Tests Management</h2>
                   <button
                     onClick={() => {
                       setEditingTest(null);
                       setShowTestEditor(true);
                     }}
-                    className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-red-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all font-semibold"
+                    className={`${styles.actionButton} ${styles.actionButtonPrimary}`}
                   >
-                    <Plus className="w-5 h-5" />
+                    <Plus className={styles.actionButtonIcon} />
                     <span>Add Mock Test</span>
                   </button>
                 </div>
 
                 {mockTests.length === 0 ? (
-                  <div className="text-center py-12 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
-                    <FileText className="w-16 h-16 mx-auto mb-4 text-slate-400" />
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">No Mock Tests Yet</h3>
-                    <p className="text-slate-600 mb-4">Create your first mock test to help users practice for their certification exam.</p>
+                  <div className={styles.emptyState}>
+                    <FileText className={styles.emptyIcon} />
+                    <h3 className={styles.emptyTitle}>No Mock Tests Yet</h3>
+                    <p className={styles.emptyText}>Create your first mock test to help users practice for their certification exam.</p>
                     <button
                       onClick={() => {
                         setEditingTest(null);
                         setShowTestEditor(true);
                       }}
-                      className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-red-600 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-all font-semibold mx-auto"
+                      className={`${styles.actionButton} ${styles.actionButtonPrimary}`}
+                      style={{ marginTop: '1rem' }}
                     >
-                      <Plus className="w-5 h-5" />
+                      <Plus className={styles.actionButtonIcon} />
                       <span>Create First Mock Test</span>
                     </button>
                   </div>
                 ) : (
-                  <div className="grid gap-4">
+                  <div style={{ display: 'grid', gap: '1rem' }}>
                     {mockTests.map((test) => (
-                      <div key={test.id} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-purple-300 hover:shadow-md transition-all">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-3">
-                              <div className="bg-gradient-to-r from-purple-600 to-red-600 text-white w-12 h-12 rounded-lg flex items-center justify-center font-bold text-lg flex-shrink-0">
-                                <FileText className="w-6 h-6" />
-                              </div>
-                              <div>
-                                <h3 className="text-xl font-bold text-slate-900">{test.title}</h3>
-                                {test.description && (
-                                  <p className="text-sm text-slate-600 mt-1">{test.description}</p>
-                                )}
-                              </div>
+                      <div key={test.id} className={styles.card}>
+                        <div className={styles.cardHeader}>
+                          <div style={{ display: 'flex', alignItems: 'start', gap: '0.75rem', flex: 1 }}>
+                            <div className={styles.cardIcon}>
+                              <FileText style={{ width: '1.5rem', height: '1.5rem' }} />
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 ml-15">
-                              <div className="flex items-center space-x-2 text-slate-600">
-                                <Clock className="w-4 h-4" />
-                                <span className="text-sm font-semibold">{test.duration || 60} minutes</span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-slate-600">
-                                <FileText className="w-4 h-4" />
-                                <span className="text-sm font-semibold">{test.totalQuestions || (test.questions?.length || 0)} questions</span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-slate-600">
-                                <Award className="w-4 h-4" />
-                                <span className="text-sm font-semibold">Pass: {test.passingScore || 70}%</span>
-                              </div>
-                              {test.createdAt && (
-                                <div className="text-xs text-slate-500">
-                                  Created: {new Date(test.createdAt).toLocaleDateString()}
-                                </div>
+                            <div style={{ flex: 1 }}>
+                              <h3 className={styles.cardTitle}>{test.title}</h3>
+                              {test.description && (
+                                <p className={styles.cardDescription}>{test.description}</p>
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2 ml-4">
+                          <div className={styles.cardActions}>
                             <button
                               onClick={() => {
                                 setEditingTest(test);
                                 setShowTestEditor(true);
                               }}
-                              className="flex items-center space-x-2 bg-blue-100 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-200 transition-all font-semibold"
+                              className={`${styles.cardButton} ${styles.cardButtonPrimary}`}
                             >
-                              <FileText className="w-4 h-4" />
+                              <FileText className={styles.cardButtonIcon} />
                               <span>Edit</span>
                             </button>
                             <button
                               onClick={() => handleDeleteTest(test.id, test.title)}
-                              className="flex items-center space-x-2 bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200 transition-all font-semibold"
+                              className={`${styles.cardButton} ${styles.cardButtonDanger}`}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className={styles.cardButtonIcon} />
                               <span>Delete</span>
                             </button>
                           </div>
+                        </div>
+                        <div className={styles.cardMeta}>
+                          <div className={styles.cardMetaItem}>
+                            <Clock className={styles.cardMetaIcon} />
+                            <span>{test.duration || 60} minutes</span>
+                          </div>
+                          <div className={styles.cardMetaItem}>
+                            <FileText className={styles.cardMetaIcon} />
+                            <span>{test.totalQuestions || (test.questions?.length || 0)} questions</span>
+                          </div>
+                          <div className={styles.cardMetaItem}>
+                            <Award className={styles.cardMetaIcon} />
+                            <span>Pass: {test.passingScore || 70}%</span>
+                          </div>
+                          {test.createdAt && (
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                              Created: {new Date(test.createdAt).toLocaleDateString()}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

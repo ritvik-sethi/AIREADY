@@ -47,7 +47,7 @@ const getInitialConfig = (): ConfigState => {
 
   const clientId = (window as any).planparams?.CLIENT_ID || '';
   const appCode = (window as any).planparams?.appCode || '';
-
+  console.log('merchantCode', merchantCode);
   const loginUrl = `https://${
     isLive
       ? merchantCode === 'TH'

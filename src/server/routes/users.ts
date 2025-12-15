@@ -266,4 +266,32 @@ router.put('/:userId/mock-tests/:testId', async (req, res) => {
   }
 });
 
+// Update user role by ssoid
+router.put('/ssoid/:ssoid/role', async (req, res) => {
+  try {
+    const { ssoid } = req.params;
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({ error: 'Role is required' });
+    }
+
+    if (!['user', 'admin', 'institution'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role. Must be one of: user, admin, institution' });
+    }
+
+    // Import the controller function
+    const { updateUserRoleBySsoid } = await import('../controllers/authController');
+    const user = await updateUserRoleBySsoid(ssoid, role);
+    
+    res.json({ success: true, user });
+  } catch (error: any) {
+    console.error('Error updating user role:', error);
+    if (error.message === 'User not found with the provided ssoid') {
+      return res.status(404).json({ error: error.message });
+    }
+    res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
 export default router;

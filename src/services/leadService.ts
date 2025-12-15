@@ -2,7 +2,7 @@
 import * as database from './database';
 
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'negotiation' | 'converted' | 'lost';
-export type LeadType = 'university' | 'school' | 'organization';
+export type LeadType = 'individual' | 'university' | 'school' | 'organization';
 
 export interface Lead {
   id: string;

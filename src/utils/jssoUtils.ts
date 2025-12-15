@@ -247,37 +247,62 @@ export const registerUser = (userDetails: UserRegistrationDetails, dispatch: App
 
     const jsso = getJssoInstance();
     if (!jsso) {
-      console.error({ error: 'JssoCrosswalk instance is not available' });
+      const error = 'JssoCrosswalk instance is not available';
+      console.log(error);
+      console.error({ error });
+      reject(new Error(error));
       return;
     }
 
     if (typeof jsso.registerUser !== 'function') {
-      console.error({ error: 'registerUser method is not available' });
+      const error = 'registerUser method is not available';
+      console.log(error);
+      console.error({ error });
+      reject(new Error(error));
       return;
     }
 
     try {
-      // Call the registerUser API with the original signature
-      jsso.registerUser(
-        firstName || 'User', // userType
-        null, // firstName
-        null, // lastName
-        null, // dob
-        email, // email
-        mobile, // mobile
-        password, // password
-        'false', // isSendOffer
-        '1', // shareDataAllowed
-        '1', // termsAccepted
-        '1', // timespointsPolicy
-        (registerRes: any) => {
+      console.log('Calling registerUser API');
+      console.log('registerUser method:', jsso.registerUser);
+      console.log('registerUser method type:', typeof jsso.registerUser);
+      console.log('Parameters being passed:', {
+        userType: firstName || 'User',
+        firstName: null,
+        lastName: null,
+        dob: null,
+        email,
+        mobile,
+        password: '***',
+        isSendOffer: 'false',
+        shareDataAllowed: '1',
+        termsAccepted: '1',
+        timespointsPolicy: '1',
+      });
+
+      // Add timeout to detect if callback never fires
+      const timeoutId = setTimeout(() => {
+        console.error('registerUser callback timeout - callback never fired after 30 seconds');
+        reject(new Error('Registration timeout - callback never fired'));
+      }, 30000);
+
+      // Wrap callback to catch any errors
+      const callbackWrapper = (registerRes: any) => {
+        try {
+          clearTimeout(timeoutId);
+          console.log('Registration response callback FIRED:', registerRes);
+          console.log('Callback response type:', typeof registerRes);
+          console.log('Callback response keys:', registerRes ? Object.keys(registerRes) : 'null/undefined');
+          
           // Store the registration response in Redux state
           // Note: setUserRegistrationResponse removed from jssoAuthSlice - ET Login specific state
           // dispatch(setUserRegistrationResponse(registerRes));
-
+          
           // Handle API failure
           if (!registerRes || registerRes.error || registerRes.status === 'ERROR') {
-            console.error(registerRes || { error: 'Registration failed' });
+            const error = registerRes || { error: 'Registration failed' };
+            console.error('Registration failed:', error);
+            reject(error);
             return;
           }
 
@@ -294,11 +319,67 @@ export const registerUser = (userDetails: UserRegistrationDetails, dispatch: App
           }
 
           // Resolve with the response for further handling
+          console.log('Resolving promise with response:', registerRes);
           resolve(registerRes);
+        } catch (callbackError) {
+          clearTimeout(timeoutId);
+          console.error('Error in callback wrapper:', callbackError);
+          reject(callbackError);
         }
-      );
+      };
+
+      // Try different callback patterns - some JSSO methods use separate success/error callbacks
+      const errorCallback = (error: any) => {
+        clearTimeout(timeoutId);
+        console.log('Registration error callback FIRED:', error);
+        reject(error || new Error('Registration failed'));
+      };
+
+      // Call registerUser with correct parameter order based on actual signature:
+      // 1. firstName, 2. lastName, 3. gender, 4. dob, 5. email, 6. mobile, 7. password,
+      // 8. isSendOffer, 9. termsAccepted, 10. shareDataAllowed, 11. timespointsPolicy,
+      // 12. userRecaptchaResponseToken, 13. v3captchasecret, 14. callback, 15. city, 16. state, 17. country
+      console.log('Calling registerUser with correct signature (17 parameters)...');
+      
+      try {
+        const returnValue = jsso.registerUser(
+          firstName || '', // 1. firstName
+          lastName || '', // 2. lastName
+          gender || '', // 3. gender
+          dob || '', // 4. dob
+          email, // 5. email
+          mobile, // 6. mobile
+          password, // 7. password
+          String(isSendOffer || false), // 8. isSendOffer
+          termsAccepted || '1', // 9. termsAccepted
+          shareDataAllowed || '1', // 10. shareDataAllowed
+          timespointsPolicy || '1', // 11. timespointsPolicy
+          null, // 12. userRecaptchaResponseToken (optional)
+          null, // 13. v3captchasecret (optional)
+          callbackWrapper, // 14. callback
+          null, // 15. city (optional)
+          null, // 16. state (optional)
+          null // 17. country (optional)
+        );
+        console.log('registerUser returned:', returnValue);
+        
+        // Check if the method returns synchronously (shouldn't happen, but just in case)
+        if (returnValue !== undefined && returnValue !== null) {
+          console.log('Method returned a value synchronously:', returnValue);
+          if (typeof returnValue === 'object' && (returnValue.status || returnValue.data || returnValue.error)) {
+            clearTimeout(timeoutId);
+            callbackWrapper(returnValue);
+          }
+        }
+      } catch (error: any) {
+        clearTimeout(timeoutId);
+        console.error('Error calling registerUser:', error);
+        reject(error);
+      }
     } catch (error) {
-      console.error({ error: 'API call failed', details: error });
+      console.error('Exception caught in registerUser call:', error);
+      console.error('Error details:', { error, stack: (error as Error)?.stack });
+      reject(error);
     }
   });
 };

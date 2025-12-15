@@ -2,10 +2,10 @@ import { GraduationCap, ChevronRight, CheckCircle } from 'lucide-react';
 import styles from './HeroSection.module.css';
 
 interface HeroSectionProps {
-  navigate: (path: string) => void;
+  onOpenRegistration?: () => void;
 }
 
-const HeroSection = ({ navigate }: HeroSectionProps) => {
+const HeroSection = ({ onOpenRegistration }: HeroSectionProps) => {
   return (
     <section className={styles.heroSection}>
       {/* Grid pattern background */}
@@ -60,7 +60,7 @@ const HeroSection = ({ navigate }: HeroSectionProps) => {
             {/* CTA Button - White with blue text */}
             <div className={styles.ctaContainer}>
               <button
-                onClick={() => navigate('/register')}
+                onClick={() => onOpenRegistration?.()}
                 className={styles.ctaButton}
               >
                 <span>Start Your Journey</span>

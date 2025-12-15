@@ -38,6 +38,7 @@ export interface JSSOState {
   isGuestLogin: boolean;
   guestEmail: string;
   guestMobile: string;
+  userRole: string | null; // User role from database (user/admin/institution)
   
   // Permissions state
   permissionsArr: string[];
@@ -70,6 +71,7 @@ export interface JSSOState {
   isCheckingLogin: boolean;
   isGettingPermissions: boolean;
   isFetchingUserToken: boolean; // Loading state for unified auth flow
+  isSyncingUser: boolean; // Loading state for syncing user to database
   
   // Error states
   error: string | null;
@@ -96,6 +98,7 @@ const initialState: JSSOState = {
   isGuestLogin: false,
   guestEmail: '',
   guestMobile: '',
+  userRole: null,
   permissionsArr: [],
   accessibleFeatures: [],
   userType: '',
@@ -107,6 +110,7 @@ const initialState: JSSOState = {
   isCheckingLogin: false,
   isGettingPermissions: false,
   isFetchingUserToken: false,
+  isSyncingUser: false,
   error: null,
   oauthUrlResponse: null,
   channelMerchant: '',
@@ -298,6 +302,31 @@ export const getPermissions = createAsyncThunk(
   }
 );
 
+// Sync user to database - async thunk with proper loading state
+export const syncUser = createAsyncThunk(
+  'jsso/syncUser',
+  async (userInfo: {
+    ssoid: string;
+    emailId?: string;
+    primaryEmail?: string;
+    firstName?: string;
+    full_name?: string;
+    phone?: string;
+    mobileList?: Record<string, string>;
+    emailList?: Record<string, string>;
+    ticketId?: string;
+    identifier?: string;
+  }, { rejectWithValue }) => {
+    try {
+      const { syncUserToDatabase } = await import('../../services/database');
+      const response = await syncUserToDatabase(userInfo);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to sync user to database');
+    }
+  }
+);
+
 // Unified UserToken API call - Single source of truth for authentication
 export const fetchUserToken = createAsyncThunk(
   'jsso/fetchUserToken',
@@ -350,7 +379,12 @@ const jssoAuthSlice = createSlice({
   reducers: {
     setUserInfo: (state, action: PayloadAction<JSSOUserInfo>) => {
       state.userInfo = { ...state.userInfo, ...action.payload };
-      state.isLogin = !!action.payload.isLogged;
+      // Guard: Only set isLogin to true if isLogged is true AND ssoid is present
+      const hasSsoid = !!(action.payload.ssoid || state.userInfo.ssoid);
+      state.isLogin = !!action.payload.isLogged && hasSsoid;
+      
+      // Sync will be triggered by AuthRedirectHandler useEffect when isLogin becomes true
+      // Cannot dispatch async thunks directly in reducers
     },
     clearUserInfo: (state) => {
       // Clear user info
@@ -359,6 +393,7 @@ const jssoAuthSlice = createSlice({
       state.isGuestLogin = false;
       state.guestEmail = '';
       state.guestMobile = '';
+      state.userRole = null;
       
       // Clear permissions
       state.permissionsArr = [];
@@ -457,6 +492,9 @@ const jssoAuthSlice = createSlice({
           if (response.data.productDetails) {
             state.userProductDetails = response.data.productDetails;
           }
+          
+          // Sync will be triggered by AuthRedirectHandler useEffect when isLogin becomes true
+          // Cannot dispatch async thunks directly in reducers
         }
       } else {
         state.isLogin = false;
@@ -500,7 +538,12 @@ const jssoAuthSlice = createSlice({
             ticketId: userInfo.ticketId,
             identifier: userInfo.identifier,
           };
-          state.isLogin = true;
+          // Guard: Only set isLogin to true if ssoid is present
+          const hasSsoid = !!(userInfo.ssoid || userInfo.ssoId);
+          state.isLogin = hasSsoid;
+          
+          // Sync will be triggered by AuthRedirectHandler useEffect when isLogin becomes true
+          // Cannot dispatch async thunks directly in reducers
         }
       })
       .addCase(getPermissions.pending, (state) => {
@@ -540,6 +583,9 @@ const jssoAuthSlice = createSlice({
             if (response.data.productDetails) {
               state.userProductDetails = response.data.productDetails;
             }
+            
+            // Sync will be triggered by AuthRedirectHandler useEffect when isLogin becomes true
+            // Cannot dispatch async thunks directly in reducers
           }
         } else {
           state.isLogin = false;
@@ -603,6 +649,9 @@ const jssoAuthSlice = createSlice({
             if (response.data.productDetails) {
               state.userProductDetails = response.data.productDetails;
             }
+            
+            // Sync will be triggered by AuthRedirectHandler useEffect when isLogin becomes true
+            // Cannot dispatch async thunks directly in reducers
           }
           
         } else {
@@ -615,6 +664,32 @@ const jssoAuthSlice = createSlice({
         state.isLogin = false;
         state.error = action.payload as string;
         state.oauthUrlResponse = null;
+      })
+      // Sync user to database
+      .addCase(syncUser.pending, (state) => {
+        state.isSyncingUser = true;
+        state.error = null;
+      })
+      .addCase(syncUser.fulfilled, (state, action) => {
+        state.isSyncingUser = false;
+        // Store user role and permissions from sync response
+        if (action.payload?.success && action.payload?.user) {
+          if (action.payload.user.role) {
+            state.userRole = action.payload.user.role;
+            console.log('[Redux] ✅ User synced to database, role:', action.payload.user.role);
+          }
+          // Store permissions array from sync response
+          if (action.payload.user.permissions && Array.isArray(action.payload.user.permissions)) {
+            state.permissionsArr = action.payload.user.permissions;
+            console.log('[Redux] ✅ Permissions synced:', action.payload.user.permissions);
+          }
+        }
+      })
+      .addCase(syncUser.rejected, (state, action) => {
+        console.error('[Redux] ❌ User sync failed:', action.payload);
+        state.isSyncingUser = false;
+        state.error = action.payload as string;
+        // Don't set userRole on error, keep existing or null
       });
   },
 });

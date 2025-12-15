@@ -1,5 +1,5 @@
 import { users, courseProgress, mockTestResults } from '../../db/schema';
-import { eq, or } from 'drizzle-orm';
+import { eq, or, and } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 
 // Lazy load db to avoid top-level await issues
@@ -318,6 +318,200 @@ export async function getUserMockTestResults(userId: number) {
     return results;
   } catch (error) {
     console.error('Error fetching mock test results from controller:', error);
+    throw error;
+  }
+}
+
+// Sync user data to database using ssoid as primary identifier
+// This function is called after successful login to ensure user data is stored in DB
+export async function syncUserToDatabase(userInfo: {
+  ssoid: string;
+  emailId?: string;
+  primaryEmail?: string;
+  firstName?: string;
+  full_name?: string;
+  phone?: string;
+  mobileList?: Record<string, string>;
+  emailList?: Record<string, string>;
+  ticketId?: string;
+  identifier?: string;
+}) {
+  try {
+    if (!userInfo.ssoid) {
+      throw new Error('ssoid is required to sync user to database');
+    }
+
+    const db = await getDb();
+    
+    // Extract email and phone from userInfo
+    const email = userInfo.emailId || userInfo.primaryEmail || 
+      (userInfo.emailList && Object.keys(userInfo.emailList)[0]) || null;
+    
+    // Extract phone from mobileList (prefer Verified, otherwise first available)
+    let phone = userInfo.phone || null;
+    if (!phone && userInfo.mobileList) {
+      const verifiedMobile = Object.entries(userInfo.mobileList).find(
+        ([, value]) => value === 'Verified'
+      )?.[0];
+      phone = verifiedMobile || Object.keys(userInfo.mobileList)[0] || null;
+    }
+
+    // Check if user exists by ssoid
+    const existingUserBySsoid = await db.select()
+      .from(users)
+      .where(eq(users.ssoid, userInfo.ssoid))
+      .limit(1);
+
+    if (existingUserBySsoid.length > 0) {
+      // User exists - update with latest info
+      const updates: any = {
+        name: userInfo.firstName || userInfo.full_name || existingUserBySsoid[0].name,
+        updatedAt: new Date(),
+      };
+
+      // Update email if provided and different
+      if (email && email !== existingUserBySsoid[0].email) {
+        updates.email = email;
+      }
+
+      // Update phone if provided and different
+      if (phone && phone !== existingUserBySsoid[0].phone) {
+        updates.phone = phone;
+      }
+
+      // Set primaryIdentifier if not set
+      if (!existingUserBySsoid[0].primaryIdentifier) {
+        if (email) {
+          updates.primaryIdentifier = 'email';
+        } else if (phone) {
+          updates.primaryIdentifier = 'phone';
+        }
+      }
+
+      const result = await db.update(users)
+        .set(updates)
+        .where(eq(users.ssoid, userInfo.ssoid))
+        .returning();
+
+      console.log('[Auth Controller] User updated in database by ssoid:', userInfo.ssoid);
+      return result[0];
+    } else {
+      // User doesn't exist - check if exists by email or phone (secondary identifiers)
+      let existingUserBySecondary: any[] = [];
+      
+      if (email) {
+        const byEmail = await db.select()
+          .from(users)
+          .where(eq(users.email, email))
+          .limit(1);
+        if (byEmail.length > 0) {
+          existingUserBySecondary = byEmail;
+        }
+      }
+      
+      if (existingUserBySecondary.length === 0 && phone) {
+        const byPhone = await db.select()
+          .from(users)
+          .where(eq(users.phone, phone))
+          .limit(1);
+        if (byPhone.length > 0) {
+          existingUserBySecondary = byPhone;
+        }
+      }
+
+      if (existingUserBySecondary.length > 0) {
+        // User exists by email/phone but doesn't have ssoid - update with ssoid
+        const updates: any = {
+          ssoid: userInfo.ssoid,
+          name: userInfo.firstName || userInfo.full_name || existingUserBySecondary[0].name,
+          updatedAt: new Date(),
+        };
+
+        // Update email if provided and different
+        if (email && email !== existingUserBySecondary[0].email) {
+          updates.email = email;
+        }
+
+        // Update phone if provided and different
+        if (phone && phone !== existingUserBySecondary[0].phone) {
+          updates.phone = phone;
+        }
+
+        const result = await db.update(users)
+          .set(updates)
+          .where(eq(users.id, existingUserBySecondary[0].id))
+          .returning();
+
+        console.log('[Auth Controller] User updated in database with ssoid:', userInfo.ssoid);
+        return result[0];
+      } else {
+        // New user - create with ssoid as primary identifier
+        // Generate a temporary password (user should set their own via password reset if needed)
+        const tempPassword = await bcrypt.hash(`temp_${userInfo.ssoid}_${Date.now()}`, 10);
+        
+        const newUser = {
+          ssoid: userInfo.ssoid,
+          name: userInfo.firstName || userInfo.full_name || 'User',
+          email: email,
+          phone: phone,
+          password: tempPassword, // Temporary password - user should set their own
+          role: 'user',
+          primaryIdentifier: email ? 'email' : (phone ? 'phone' : null),
+          address: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        const result = await db.insert(users).values(newUser).returning();
+        console.log('[Auth Controller] New user created in database with ssoid:', userInfo.ssoid);
+        return result[0];
+      }
+    }
+  } catch (error) {
+    console.error('[Auth Controller] Error syncing user to database:', error);
+    throw error;
+  }
+}
+
+// Update user role by ssoid
+export async function updateUserRoleBySsoid(ssoid: string, role: string) {
+  try {
+    if (!ssoid) {
+      throw new Error('ssoid is required');
+    }
+
+    if (!role || !['user', 'admin', 'institution'].includes(role)) {
+      throw new Error('Invalid role. Must be one of: user, admin, institution');
+    }
+
+    const db = await getDb();
+    
+    // Check if user exists by ssoid
+    const existingUser = await db.select()
+      .from(users)
+      .where(eq(users.ssoid, ssoid))
+      .limit(1);
+
+    if (existingUser.length === 0) {
+      throw new Error('User not found with the provided ssoid');
+    }
+
+    // Update user role
+    const result = await db.update(users)
+      .set({ 
+        role: role,
+        updatedAt: new Date()
+      })
+      .where(eq(users.ssoid, ssoid))
+      .returning();
+
+    console.log('[Auth Controller] User role updated:', { ssoid, oldRole: existingUser[0].role, newRole: role });
+    
+    // Remove password before returning
+    const { password, ...userWithoutPassword } = result[0];
+    return userWithoutPassword;
+  } catch (error) {
+    console.error('[Auth Controller] Error updating user role:', error);
     throw error;
   }
 }
